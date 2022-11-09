@@ -28,7 +28,7 @@ class ThreadedUDPRequestHandler(socketserver.BaseRequestHandler):
         if dataStr != "":
             if dataStr in MICRO_COMMANDS:  # Send message through UART
                 print(dataStr)
-                #sendUARTMessage(data)
+                sendUARTMessage(data)
             elif dataStr == "getValues()":  # Sent last value received from micro-controller
                 print("getValues()")
                 # socket.sendto(LAST_VALUE, self.client_address)
@@ -42,7 +42,7 @@ class ThreadedUDPServer(socketserver.ThreadingMixIn, socketserver.UDPServer):
 
 
 # send serial message
-SERIALPORT = "/dev/ttyUSB0"
+SERIALPORT = "/dev/ttyS4"
 BAUDRATE = 115200
 ser = serial.Serial()
 
@@ -78,7 +78,7 @@ def sendUARTMessage(msg):
 
 # Main program logic follows:
 if __name__ == '__main__':
-    #initUART()
+    initUART()
     f = open(FILENAME, "a")
     print('Press Ctrl-C to quit.')
 
@@ -91,16 +91,18 @@ if __name__ == '__main__':
         server_thread.start()
         print("Server started at {} port {}".format(HOST, UDP_PORT))
 
+        if (ser.isOpen()):
+            while ser.isOpen():
+                # time.sleep(100)
+                if (ser.inWaiting() > 0):  # if incoming bytes are waiting
+                    data_str = ser.read(ser.inWaiting())
+                    f.write(data_str)
+                    LAST_VALUE = data_str
+                    print(data_str)
+
         while (1):
             continue
 
-        while ser.isOpen():
-            # time.sleep(100)
-            if (ser.inWaiting() > 0):  # if incoming bytes are waiting
-                data_str = ser.read(ser.inWaiting())
-                f.write(data_str)
-                LAST_VALUE = data_str
-                print(data_str)
     except (KeyboardInterrupt, SystemExit):
         server.shutdown()
         server.server_close()
