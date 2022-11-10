@@ -60,6 +60,8 @@ public class SensorsAdapter extends BaseAdapter {
         holder.sensorNameView.setText(sensor.getName());
         holder.sensorValueView.setText(sensor.getValue());
 
+        this.setOrderFunction(position, convertView);
+
         int imageId = this.getMipmapResIdByName(sensor.getType());
 
         holder.sensorImgView.setImageResource(imageId);
@@ -87,5 +89,32 @@ public class SensorsAdapter extends BaseAdapter {
             default:
                 return "sensor";
         }
+    }
+
+
+
+    private void changeOrder(int id, boolean top) {
+        Log.i("Change Order", "Button #" + String.valueOf(id) + " go " + (top ? "top" : "bottom"));
+        Sensor toMove = this.sensors[id];
+        if (top) {
+            this.sensors[id] = this.sensors[id- 1];
+            this.sensors[id- 1] = toMove;
+        } else {
+            this.sensors[id] = this.sensors[id+ 1];
+            this.sensors[id+ 1] = toMove;
+        }
+        this.notifyDataSetChanged();
+    }
+
+    private void setOrderFunction(int id, View view) {
+        View buttonUp = view.findViewById(R.id.button_up);
+        View buttonDown = view.findViewById(R.id.button_down);
+        if (id == 0) {
+            buttonUp.setVisibility(View.INVISIBLE);
+        } else if (id == this.getCount() - 1) {
+            buttonDown.setVisibility(View.INVISIBLE);
+        }
+        buttonUp.setOnClickListener(v -> changeOrder(id, true));
+        buttonDown.setOnClickListener(v -> changeOrder(id, false));
     }
 }

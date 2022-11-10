@@ -20,7 +20,7 @@
         android:id="@+id/sensor_name"
         android:layout_width="wrap_content"
         android:layout_height="30dp"
-        android:layout_marginStart="6dp"
+        android:layout_marginStart="15dp"
         android:textSize="18sp"
         android:text="@string/sensor_name"
         app:layout_constraintStart_toEndOf="@+id/sensor_img"
@@ -31,10 +31,39 @@
         android:layout_width="170dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="2dp"
-        android:layout_marginStart="6dp"
+        android:layout_marginStart="15dp"
         android:text="@string/sensor_value"
         app:layout_constraintStart_toEndOf="@+id/sensor_img"
         app:layout_constraintTop_toBottomOf="@+id/sensor_name" />
 
+    <LinearLayout
+        android:layout_width="135dp"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="@+id/sensor_img"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/sensor_img"
+        app:layout_constraintVertical_bias="0.501">
+
+        <ImageButton
+            android:id="@+id/button_up"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            app:srcCompat="@drawable/arrow_top"
+            android:textColor="@android:color/primary_text_dark"
+            android:contentDescription="@string/up" />
+
+        <ImageButton
+            android:id="@+id/button_down"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            app:srcCompat="@drawable/arrow_bottom"
+            android:textColor="@android:color/primary_text_dark"
+            android:contentDescription="@string/down" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -3,4 +3,10 @@
     <string name="sensor_name">sensor name</string>
     <string name="sensor_value">sensor value</string>
     <string name="sensor_logo">Sensor Logo</string>
+    <string name="up">Up</string>
+    <string name="down">Down</string>
+    <string name="adresse_ip">Adresse IP</string>
+    <string name="port">port</string>
+    <string name="double_dots">:</string>
+    <string name="set">SET</string>
 </resources>
