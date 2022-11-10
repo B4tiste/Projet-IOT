@@ -78,7 +78,11 @@ def sendUARTMessage(msg):
 
 # Main program logic follows:
 if __name__ == '__main__':
-    initUART()
+    try:
+        initUART()
+    except:
+        pass
+    
     f = open(FILENAME, "a")
     print('Press Ctrl-C to quit.')
 
