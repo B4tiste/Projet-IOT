@@ -5,14 +5,26 @@
 
 MicroBit uBit;
 
+char *decrypt(const char *encrypted)
+{
+    char *decrypted = new char[strlen(encrypted) + 1];
+    char *begin = decrypted;
+
+    while (*encrypted != '\0')
+    {
+        *decrypted++ = *encrypted++ - 3;
+    }
+    *decrypted = '\0';
+
+    return begin;
+}
+
+
 void onData(MicroBitEvent)
 {
-    // Buffer qui contient le message reçu par Radio Frequency
-    PacketBuffer b = uBit.radio.datagram.recv();
-
-    char message[20];
-    sprintf(message, "%d.%d | %d%d%d", b[0], b[1], b[2], b[3], b[4]);
-    uBit.display.scroll(message);
+    // Message reçu par Radio Frequency
+    ManagedString message = uBit.radio.datagram.recv();
+    uBit.display.scroll(decrypt(message.toCharArray()));
 }
 
 int main()
