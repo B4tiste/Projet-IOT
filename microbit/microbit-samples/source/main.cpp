@@ -11,7 +11,7 @@ void onData(MicroBitEvent)
     PacketBuffer b = uBit.radio.datagram.recv();
 
     char message[20];
-    sprintf(message, "T: %d.%d | L: %d%d%d", b[0], b[1], b[2], b[3], b[4]);
+    sprintf(message, "%d.%d | %d%d%d", b[0], b[1], b[2], b[3], b[4]);
     uBit.display.scroll(message);
 }
 
@@ -25,4 +25,6 @@ int main()
     uBit.radio.setGroup(14);
 
     uBit.radio.enable();
+
+    release_fiber();
 }
