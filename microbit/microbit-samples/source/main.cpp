@@ -2,15 +2,14 @@
 #include "bme280.h"
 #include "tsl256x.h"
 #include "ssd1306.h"
-
-using namespace std;
+#include <string.h>
 
 MicroBit uBit;
 MicroBitI2C i2c(I2C_SDA0, I2C_SCL0);
 MicroBitPin P0(MICROBIT_ID_IO_P0, MICROBIT_PIN_P0, PIN_CAPABILITY_DIGITAL_OUT);
 
-// string encryptionMessage(string Msg);
-// string decryptionMessage(string CTxt);
+char *encrypt(char *not_encrypted);
+char *decrypt(char *encrypted);
 
 int main()
 {
@@ -36,6 +35,9 @@ int main()
     uBit.radio.enable();
     uBit.radio.setGroup(14);
 
+    // Init du message chiffré
+    char *cipher = NULL;
+
     while (true)
     {
         // Récupération des données sur les capteurs
@@ -59,7 +61,6 @@ int main()
         screen.update_screen();
 
         // Envoie des informations par radio fréquence
-
         // Parsing
         // Température
         int temp_gauche = tmp / 100;
@@ -69,22 +70,17 @@ int main()
         int lumi_centre = lux / 100 % 100;
         int lumi_droite = lux % 100;
 
-        // Buffer
-        PacketBuffer buffer(5);
-        buffer[0] = temp_gauche;
-        buffer[1] = temp_droite;
-        buffer[2] = lumi_gauche;
-        buffer[3] = lumi_centre;
-        buffer[4] = lumi_droite;
-
-        // DEBUG
+        // Création du message
         char message[5];
-        sprintf(message, "%d.%d, %d%d%d", buffer[0], buffer[1], buffer[2], buffer[3], buffer[4]);
+        sprintf(message, "%d.%d, %d%d%d", temp_gauche, temp_droite, lumi_gauche, lumi_centre, lumi_droite);
+
+        // Encrypt
+        cipher = encrypt(message);
 
         uBit.display.scroll(message);
 
         // Envoie
-        uBit.radio.datagram.send(buffer);
+        uBit.radio.datagram.send(encrypt(message));
 
         uBit.sleep(5000);
     }
@@ -92,54 +88,30 @@ int main()
     release_fiber();
 }
 
-// string encryptionMessage(string Msg)
-// {
-//     string CTxt = "";
+char *encrypt(char *not_encrypted)
+{
+    char *encrypted = new char[strlen(not_encrypted) + 1];
+    char *begin = encrypted;
 
-//     int a = 3;
+    while (*not_encrypted != '\0')
+    {
+        *encrypted++ = *not_encrypted++ + 3;
+    }
+    *encrypted = '\0';
 
-//     int b = 6;
+    return begin;
+}
 
-//     for (unsigned int i = 0; i < Msg.length(); i++)
+char *decrypt(char *encrypted)
+{
+    char *decrypted = new char[strlen(encrypted) + 1];
+    char *begin = decrypted;
 
-//     {
-//         CTxt = CTxt + (char)((((a * Msg[i]) + b) % 26) + 65);
-//     }
+    while (*encrypted != '\0')
+    {
+        *decrypted++ = *encrypted++ - 3;
+    }
+    *decrypted = '\0';
 
-//     return CTxt;
-// }
-
-// string decryptionMessage(string CTxt)
-// {
-//     string Msg = "";
-
-//     int a = 3;
-
-//     int b = 6;
-
-//     int a_inv = 0;
-
-//     int flag = 0;
-
-//     for (int i = 0; i < 26; i++)
-
-//     {
-
-//         flag = (a * i) % 26;
-
-//         if (flag == 1)
-
-//         {
-//             a_inv = i;
-//         }
-//     }
-
-//     for (unsigned int i = 0; i < CTxt.length(); i++)
-
-//     {
-
-//         Msg = Msg + (char)(((a_inv * ((CTxt[i] - b)) % 26)) + 65);
-//     }
-
-//     return Msg;
-// }
+    return begin;
+}
