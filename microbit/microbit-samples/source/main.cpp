@@ -1,43 +1,28 @@
 #include "MicroBit.h"
-#include "ssd1306.h"
 
+#define PREFIX "/b/"
+#define PrivateKey "/b/"
 
 MicroBit uBit;
-MicroBitI2C i2c(I2C_SDA0,I2C_SCL0);
-MicroBitPin P0(MICROBIT_ID_IO_P0, MICROBIT_PIN_P0, PIN_CAPABILITY_DIGITAL_OUT);
 
-void onButton(MicroBitEvent e)
+void onData(MicroBitEvent)
 {
-    if (e.source == MICROBIT_ID_BUTTON_A)
-        uBit.display.scroll("C");
-        
+    // Buffer qui contient le message reçu par Radio Frequency
+    PacketBuffer b = uBit.radio.datagram.recv();
 
-    if (e.source == MICROBIT_ID_BUTTON_B)
-        uBit.display.scroll("D"); 
+    char message[20];
+    sprintf(message, "T: %d.%d | L: %d%d%d", b[0], b[1], b[2], b[3], b[4]);
+    uBit.display.scroll(message);
 }
-
-// Coller le contenu du dossier ssd1306 !
 
 int main()
 {
     // Initialise the micro:bit runtime.
     uBit.init();
 
-    uBit.messageBus.listen(MICROBIT_ID_BUTTON_A, MICROBIT_EVT_ANY, onButton);
+    uBit.messageBus.listen(MICROBIT_ID_RADIO, MICROBIT_RADIO_EVT_DATAGRAM, onData);
 
-    // Ecriture sur l'écran OLED
-    ssd1306 screen(&uBit, &i2c, &P0);
-    while(true)
-    {
-        screen.display_line(1,0,"Temperature :");
-        screen.display_line(3,6,"29'C");
-        screen.display_line(5,0,"Luminosite :");
-        screen.display_line(7,6,"15%");
-        screen.update_screen();
-        uBit.sleep(1000);
-    }
+    uBit.radio.setGroup(14);
 
-    release_fiber();
-
+    uBit.radio.enable();
 }
-
