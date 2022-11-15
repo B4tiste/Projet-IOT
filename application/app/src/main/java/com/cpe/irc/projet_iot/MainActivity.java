@@ -10,10 +10,11 @@ import android.widget.EditText;
 import android.widget.ListView;
 
 import com.cpe.irc.projet_iot.communication.Communicator;
-import com.cpe.irc.projet_iot.communication.OnChangeLoadIpPort;
 import com.cpe.irc.projet_iot.sensor.Sensor;
 import com.cpe.irc.projet_iot.sensor.SensorsAdapter;
 
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity {
@@ -40,9 +41,7 @@ public class MainActivity extends AppCompatActivity {
         EditText port = this.findViewById(R.id.port);
         Button setIpPort = this.findViewById(R.id.set_ip_port);
         // on edit text change
-        setIpPort.setOnClickListener((v) -> {
-            this.loadIpPort(ip, port);
-        });
+        setIpPort.setOnClickListener((v) -> this.loadIpPort(ip, port));
     }
 
     public void loadIpPort(EditText ip, EditText port) {
@@ -92,7 +91,11 @@ public class MainActivity extends AppCompatActivity {
     // TODO: load data from server
     protected Sensor[] loadSensorData() {
         Communicator communicator = new Communicator(this.ip, this.port);
-        communicator.sendMessage("GET_SENSORS");
+        try {
+            communicator.communicate();
+        } catch (SocketException | UnknownHostException | InterruptedException e) {
+            Log.e("COMMUNICATOR", "Error while communicating with server: " + e.getMessage());
+        }
         Log.i("COMMUNICATOR", "Message Sent");
 
 //        communicator.run();
