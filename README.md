@@ -54,3 +54,4 @@ graph TD
     - UDP
   - 3 - Communication bidirectionnelle avec le smartphone
     - Écoute des messages envoyés du serveur
+
