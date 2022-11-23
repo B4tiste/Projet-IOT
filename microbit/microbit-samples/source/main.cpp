@@ -77,10 +77,10 @@ int main()
         // Encrypt
         cipher = encrypt(message);
 
-        uBit.display.scroll(message);
+        uBit.display.scroll(cipher);
 
         // Envoie
-        uBit.radio.datagram.send(encrypt(message));
+        uBit.radio.datagram.send(cipher);
 
         uBit.sleep(5000);
     }
@@ -88,6 +88,7 @@ int main()
     release_fiber();
 }
 
+// Permet de chiffrer une chaine de caractère via un césar
 char *encrypt(char *not_encrypted)
 {
     char *encrypted = new char[strlen(not_encrypted) + 1];
@@ -102,6 +103,7 @@ char *encrypt(char *not_encrypted)
     return begin;
 }
 
+// Permet de déchiffrer une chaines de caractères chiffrés
 char *decrypt(char *encrypted)
 {
     char *decrypted = new char[strlen(encrypted) + 1];
