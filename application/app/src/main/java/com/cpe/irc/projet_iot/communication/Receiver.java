@@ -10,31 +10,41 @@ import java.util.concurrent.BlockingQueue;
 
 
 public class Receiver extends Messager implements Runnable {
-    private final int delay;
 
-    public Receiver(BlockingQueue<Message> queue, int delay) throws SocketException {
+    public Receiver(BlockingQueue<Message> queue, int delay, int port) throws SocketException {
         super(queue);
         this.delay = delay;
-        // port between 49152 and 65535
-        this.UDPSocket = new DatagramSocket(49152 + (int)(Math.random() * ((65535 - 49152) + 1)));
+        this.UDPSocket = new DatagramSocket(port);
+    }
+
+    public Receiver(BlockingQueue<Message> queue, int delay) throws SocketException {
+        this(queue, delay, 10000);
     }
 
     @Override
     public void run() {
         try {
-            while (true) {
-                Thread.sleep(this.delay * 1000L);
-                this.queue.put(this.receive());
+            boolean fin = false;
+            while (!fin) {
+                Message message = this.receive();
+                if (message.msg.equals("fin")) {
+                    fin = true;
+                    Log.i("Receiver", " <-- " + this.uniqueId + " << Receiver: " + message.msg);
+                } else if (!message.msg.equals("")) {
+                    this.queue.put(message);
+                    Log.i("Receiver", " <-- " + this.uniqueId + " << Receiver: " + message);
+                }
             }
         } catch (InterruptedException | IOException ignored) {
+            Log.e("Receiver", "Error in run");
         }
     }
 
     private Message receive() throws IOException {
         byte[] buffer = new byte[1024];
         DatagramPacket datagramPacket = new DatagramPacket(buffer, buffer.length);
-        UDPSocket.receive(datagramPacket);
-        Log.i("Receiver", "#" + this.uniqueId + " >> Create a new message!");
+        this.UDPSocket.receive(datagramPacket);
+        Log.i("Receiver", " --> " + this.uniqueId + " << Receiver: " + this.queue.peek());
         return Message.fromPacket(datagramPacket);
     }
 }

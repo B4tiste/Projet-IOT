@@ -8,6 +8,7 @@ public abstract class Messager {
     protected BlockingQueue<Message> queue;
     protected int uniqueId;
     protected DatagramSocket UDPSocket;
+    protected int delay;
 
     public static int incrementId() {
         return Messager.lastId++;

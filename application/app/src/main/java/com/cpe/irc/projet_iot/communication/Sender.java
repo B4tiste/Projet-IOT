@@ -16,6 +16,7 @@ public class Sender extends Messager implements Runnable {
 
     public Sender(BlockingQueue<Message> queue, String address, int port) throws SocketException, UnknownHostException {
         super(queue);
+        this.delay = 1;
         this.UDPSocket = new DatagramSocket();
         this.address = InetAddress.getByName(address);
         this.port = port;
@@ -24,8 +25,16 @@ public class Sender extends Messager implements Runnable {
     @Override
     public void run() {
         try {
-            while (true) {
-                this.send(this.queue.take());
+            boolean fin = false;
+            while (!fin)
+            {
+                Message message = this.queue.take();
+                if(message.msg.equals("fin")){
+                    fin = true;
+                } else {
+                    this.send(message);
+                    Log.i("Sender", "sending message");
+                }
             }
         } catch (InterruptedException | IOException ignored) {
         }

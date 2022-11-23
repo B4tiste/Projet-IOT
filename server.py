@@ -13,7 +13,7 @@ HOST = "192.168.176.122"
 UDP_PORT = 10000
 MICRO_COMMANDS = ["TL", "LT"]
 FILENAME = "values.txt"
-LAST_VALUE = bytes("je recçois les données mec", "utf-8")
+LAST_VALUE = bytes("je reçois les données mec", "utf-8")
 
 
 class ThreadedUDPRequestHandler(socketserver.BaseRequestHandler):
@@ -30,8 +30,8 @@ class ThreadedUDPRequestHandler(socketserver.BaseRequestHandler):
                 print(dataStr)
                 sendUARTMessage(data)
             elif dataStr == "getValues()":  # Sent last value received from micro-controller
-                print("getValues()")
-                socket.sendto(LAST_VALUE, self.client_address)
+                print("getValues():", LAST_VALUE)
+                socket.sendto(LAST_VALUE, (self.client_address[0], UDP_PORT))
                 # TODO: Create last_values_received as global variable
             else:
                 print("Unknown message: ", dataStr)

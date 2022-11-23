@@ -5,21 +5,35 @@ import android.util.Log;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 public class Communicator {
-    private final BlockingQueue<Message> messages; // Setup the queue
+    static private Communicator instance = null;
+
+    private final BlockingQueue<Message> messagesToSend; // Setup the queue
+    private final BlockingQueue<Message> messagesReceived; // Setup the queue
     private String ip;
     private int port;
+    private Thread senderThread;
+    private Thread receivedThread;
+    private Sender sender;
+    private Receiver receiver;
 
     public Communicator(String ip, int port) {
         this.ip = ip;
         this.port = port;
-        this.messages = new ArrayBlockingQueue<>(10);
+        this.messagesReceived = new ArrayBlockingQueue<>(10);
+        this.messagesToSend = new ArrayBlockingQueue<>(10);
+    }
+
+    public static Communicator getCommunicator(String ip, int port) {
+        if (Communicator.instance == null) {
+            Communicator.instance = new Communicator(ip, port);
+        }
+        return Communicator.instance;
     }
 
     public String getIp() {
@@ -38,26 +52,46 @@ public class Communicator {
         this.port = port;
     }
 
-    public void communicate() throws SocketException, UnknownHostException, InterruptedException {
-        Receiver receiver = new Receiver(this.messages, 0);
-        Sender sender = new Sender(this.messages , this.ip, this.port);
-
-        // Starting the threads
-        Thread receivedThread = new Thread(receiver);
-        Thread senderThread = new Thread(sender);
-
-        receivedThread.start();
-        senderThread.start();
-
-        // Waiting for the threads to finish and get the results
+    public boolean send(String msg) {
         try {
-            receivedThread.join();
-            senderThread.join();
+            this.messagesToSend.put(new Message(msg));
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            Log.e("COMMUNICATOR", "Error while sending message to server: " + e.getMessage());
+            return false;
         }
+        return true;
+    }
 
-        // Printing the results
-        Log.i("Communicator", "Received: " + receiver.getMessage());
+    public List<Message> receive() {
+        List<Message> msgs = new ArrayList<>();
+        try {
+            Message msg = this.messagesReceived.poll(30, TimeUnit.SECONDS);
+            if(!msg.msg.equals(""))
+            {
+                msgs.add(msg);
+            }
+        } catch (NullPointerException | InterruptedException e) {
+            Log.e("COMMUNICATOR", "Error while receiving message from server: " + e.getMessage());
+        }
+        return msgs;
+    }
+
+    public void initiate() {
+        try {
+        Log.i("Communicator", " --> " + " << Communicator: " + "Start communication");
+            this.receiver = new Receiver(this.messagesReceived, 1);
+            this.sender = new Sender(this.messagesToSend , this.ip, this.port);
+
+            // Starting the threads
+            this.receivedThread = new Thread(this.receiver);
+            this.senderThread = new Thread(this.sender);
+
+
+            receivedThread.start();
+            senderThread.start();
+
+        } catch (SocketException | UnknownHostException er) {
+            er.printStackTrace();
+        }
     }
 }
