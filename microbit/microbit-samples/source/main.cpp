@@ -18,7 +18,6 @@ void onRecievedConfig(MicroBitEvent)
     ManagedString crypted_config = uBit.radio.datagram.recv();
     
     strcpy(order, decrypt(crypted_config.toCharArray()));
-    uBit.display.scroll(order);
 }
 
 int main()
@@ -66,19 +65,32 @@ int main()
         char display_lum[6];
         sprintf(display_lum, "%5d", (int)lux);
 
+        // Clear de l'écran pour qu'aucune donnée ne se chevauche
+        for(int i = 0; i < 8; i++) {
+            screen.display_line(i, 0, "                   ");
+        }
+        screen.update_screen();
+        
+        // Traitement de l'ordre de d'affichage
         if(strcmp(order, "LT") == 0) {
-            screen.display_line(0, 0, "Luminosite :");
-            screen.display_line(2, 5, display_lum);
-            screen.display_line(4, 0, "Temperature :");
-            screen.display_line(6, 5, display_temp);
+            screen.display_line(0, 0, "Ordre : LT");
+            screen.display_line(1, 0, "Luminosite :");
+            screen.display_line(3, 5, display_lum);
+            screen.display_line(5, 0, "Temperature :");
+            screen.display_line(7, 5, display_temp);
 
         } else if(strcmp(order, "TL") == 0) {
-            screen.display_line(0, 0, "Temperature :");
-            screen.display_line(2, 5, display_temp);
-            screen.display_line(4, 0, "Luminosite :");
-            screen.display_line(6, 5, display_lum);
+            screen.display_line(0, 0, "Ordre : TL");
+            screen.display_line(1, 0, "Temperature :");
+            screen.display_line(3, 5, display_temp);
+            screen.display_line(5, 0, "Luminosite :");
+            screen.display_line(7, 5, display_lum);
         } else {
-            screen.display_line(0, 0, "Erreur");            
+            // Affichage d'une erreur sinon car lié à la réception de l'ordre 
+            screen.display_line(0, 0, "Erreur !");            
+            screen.display_line(2, 0, "Mauvaise réception");            
+            screen.display_line(3, 0, "de l'ordre choisi");            
+            screen.display_line(4, 0, "par l'user.");            
         }
 
         // Affichage des informations sur l'écran
@@ -100,9 +112,6 @@ int main()
 
         // Encrypt
         cipher = encrypt(message);
-
-        // uBit.display.scroll(cipher);
-        screen.display_line(7, 0, cipher);
 
         // Envoie
         uBit.radio.datagram.send(cipher);
@@ -142,3 +151,4 @@ char *decrypt(const char *encrypted)
 
     return begin;
 }
+
