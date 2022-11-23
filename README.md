@@ -9,7 +9,7 @@ graph TD
     A[Application Android] --> B[Serveur Python]
     B --> A
     
-    B --> C[MicroBit Communication]
+    B --> C[MicroBit Passerelle]
     C --> B
     
     C --> D[MicroBit Capteur]
@@ -21,7 +21,6 @@ graph TD
     G[Luminosité]
     F & G --> E
 ```
-
 
 # Weather sensor 
 
