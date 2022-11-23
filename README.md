@@ -2,6 +2,26 @@
 
 Repository des fichiers sources du projet IOT 4IRC
 
+Branche : **Passerelle**
+
+```mermaid
+graph TD
+    A[Application Android] --> B[Serveur Python]
+    B --> A
+    
+    B --> C[MicroBit Passerelle]
+    C --> B
+    
+    C --> D[MicroBit Capteur]
+    D --> C
+    D --> H[Ecran OLED]
+    
+    E[Capteurs] --> D
+    F[Température]
+    G[Luminosité]
+    F & G --> E
+```
+
 ### Infrastructure objet-passerelle
 
 - Mise en place du réseau

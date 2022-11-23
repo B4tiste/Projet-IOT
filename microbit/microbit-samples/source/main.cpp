@@ -19,6 +19,19 @@ char *decrypt(const char *encrypted)
     return begin;
 }
 
+char *encrypt(const char *decrypted)
+{
+    char *encrypted = new char[strlen(decrypted) + 1];
+    char *begin = encrypted;
+
+    while (*decrypted != '\0')
+    {
+        *encrypted++ = *decrypted++ + 3;
+    }
+    *encrypted = '\0';
+
+    return begin;
+}
 
 void onData(MicroBitEvent)
 {
@@ -37,6 +50,30 @@ int main()
     uBit.radio.setGroup(14);
 
     uBit.radio.enable();
+
+    // Init du message chiffré
+    char *cipher = NULL;
+
+    int cpt = 1;
+    // Création du message "LT"
+    char message[3] = "LT";
+
+    while (true)
+    {
+        if (cpt) strcpy(message, "LT");
+        else strcpy(message, "TL");
+
+        cpt = !cpt;
+
+        // Chiffrement du message
+        cipher = encrypt(message);
+
+        uBit.radio.datagram.send(cipher);
+
+        uBit.display.scroll(message);
+
+        uBit.sleep(5000);
+    }
 
     release_fiber();
 }
