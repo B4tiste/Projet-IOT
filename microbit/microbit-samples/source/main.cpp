@@ -7,14 +7,27 @@
 MicroBit uBit;
 MicroBitI2C i2c(I2C_SDA0, I2C_SCL0);
 MicroBitPin P0(MICROBIT_ID_IO_P0, MICROBIT_PIN_P0, PIN_CAPABILITY_DIGITAL_OUT);
+char order[3] = "LT";
 
-char *encrypt(char *not_encrypted);
-char *decrypt(char *encrypted);
+char *encrypt(const char *not_encrypted);
+char *decrypt(const char *encrypted);
+
+void onRecievedConfig(MicroBitEvent)
+{
+    // Message reçu par Radio Frequency
+    ManagedString crypted_config = uBit.radio.datagram.recv();
+    
+    strcpy(order, decrypt(crypted_config.toCharArray()));
+    uBit.display.scroll(order);
+}
 
 int main()
 {
     // Initialise the micro:bit runtime.
     uBit.init();
+
+    // Init l'écoute de la passerelle
+    uBit.messageBus.listen(MICROBIT_ID_RADIO, MICROBIT_RADIO_EVT_DATAGRAM, onRecievedConfig);
 
     // Init liaison i2c capteur Temp/Humi/Press
     bme280 bme(&uBit, &i2c);
@@ -43,21 +56,32 @@ int main()
         // Récupération des données sur les capteurs
         bme.sensor_read(&pressure, &temp, &humidite);
         tsl.sensor_read(&comb, &ir, &lux);
-
-        // Temperature
+        
+        // Traitement pour afficher la Temperature
         int tmp = bme.compensate_temperature(temp);
         char display_temp[6];
         sprintf(display_temp, "%2d.%2d C", tmp / 100, tmp % 100);
 
-        // Luminosité
+        // Traitement pour afficher la Luminosité
         char display_lum[6];
         sprintf(display_lum, "%5d", (int)lux);
 
+        if(strcmp(order, "LT") == 0) {
+            screen.display_line(0, 0, "Luminosite :");
+            screen.display_line(2, 5, display_lum);
+            screen.display_line(4, 0, "Temperature :");
+            screen.display_line(6, 5, display_temp);
+
+        } else if(strcmp(order, "TL") == 0) {
+            screen.display_line(0, 0, "Temperature :");
+            screen.display_line(2, 5, display_temp);
+            screen.display_line(4, 0, "Luminosite :");
+            screen.display_line(6, 5, display_lum);
+        } else {
+            screen.display_line(0, 0, "Erreur");            
+        }
+
         // Affichage des informations sur l'écran
-        screen.display_line(1, 0, "Temperature :");
-        screen.display_line(3, 5, display_temp);
-        screen.display_line(5, 0, "Luminosite :");
-        screen.display_line(7, 5, display_lum);
         screen.update_screen();
 
         // Envoie des informations par radio fréquence
@@ -77,7 +101,8 @@ int main()
         // Encrypt
         cipher = encrypt(message);
 
-        uBit.display.scroll(cipher);
+        // uBit.display.scroll(cipher);
+        screen.display_line(7, 0, cipher);
 
         // Envoie
         uBit.radio.datagram.send(cipher);
@@ -89,7 +114,7 @@ int main()
 }
 
 // Permet de chiffrer une chaine de caractère via un césar
-char *encrypt(char *not_encrypted)
+char *encrypt(const char *not_encrypted)
 {
     char *encrypted = new char[strlen(not_encrypted) + 1];
     char *begin = encrypted;
@@ -104,7 +129,7 @@ char *encrypt(char *not_encrypted)
 }
 
 // Permet de déchiffrer une chaines de caractères chiffrés
-char *decrypt(char *encrypted)
+char *decrypt(const char *encrypted)
 {
     char *decrypted = new char[strlen(encrypted) + 1];
     char *begin = decrypted;
