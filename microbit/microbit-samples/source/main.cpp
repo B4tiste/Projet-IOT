@@ -61,7 +61,7 @@ int main()
         screen.update_screen();
 
         // Envoie des informations par radio fréquence
-        // Parsing
+        // Décomposition des variables par tuple de deux caractères
         // Température
         int temp_gauche = tmp / 100;
         int temp_droite = tmp % 100;
