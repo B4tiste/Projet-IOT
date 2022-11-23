@@ -4,6 +4,25 @@ Repository des fichiers sources du projet IOT 4IRC
 
 Branche : **dev_batiste**
 
+```mermaid
+graph TD
+    A[Application Android] --> B[Serveur Python]
+    B --> A
+    
+    B --> C[MicroBit Communication]
+    C --> B
+    
+    C --> D[MicroBit Capteur]
+    D --> C
+    D --> H[Ecran OLED]
+    
+    E[Capteurs] --> D
+    F[Température]
+    G[Luminosité]
+    F & G --> E
+```
+
+
 # Weather sensor 
 
 ## Infos câblage : 
