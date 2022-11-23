@@ -9,11 +9,11 @@ import socketserver
 import serial
 import threading
 
-HOST = "10.50.103.9"
+HOST = "192.168.176.122"
 UDP_PORT = 10000
 MICRO_COMMANDS = ["TL", "LT"]
 FILENAME = "values.txt"
-LAST_VALUE = ""
+LAST_VALUE = bytes("je recçois les données mec", "utf-8")
 
 
 class ThreadedUDPRequestHandler(socketserver.BaseRequestHandler):
@@ -31,7 +31,7 @@ class ThreadedUDPRequestHandler(socketserver.BaseRequestHandler):
                 sendUARTMessage(data)
             elif dataStr == "getValues()":  # Sent last value received from micro-controller
                 print("getValues()")
-                # socket.sendto(LAST_VALUE, self.client_address)
+                socket.sendto(LAST_VALUE, self.client_address)
                 # TODO: Create last_values_received as global variable
             else:
                 print("Unknown message: ", dataStr)
@@ -42,7 +42,7 @@ class ThreadedUDPServer(socketserver.ThreadingMixIn, socketserver.UDPServer):
 
 
 # send serial message
-SERIALPORT = "/dev/ttyS4"
+SERIALPORT = "COM1"
 BAUDRATE = 115200
 ser = serial.Serial()
 
@@ -99,8 +99,9 @@ if __name__ == '__main__':
             while ser.isOpen():
                 # time.sleep(100)
                 if (ser.inWaiting() > 0):  # if incoming bytes are waiting
-                    data_str = ser.read(ser.inWaiting())
-                    f.write(data_str)
+                    data_bytes = ser.read(ser.inWaiting())
+                    data_str = data_bytes.decode('utf-8')
+                    f.write(data_str + "\n")
                     LAST_VALUE = data_str
                     print(data_str)
 
