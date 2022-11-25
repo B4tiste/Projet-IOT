@@ -1,8 +1,35 @@
 #include "MicroBit.h"
+#include "MicroBitUARTService.h"
 
 MicroBit uBit;
 
 char prefix = 'b';
+
+int connected = 0;
+
+// ================================================================================
+
+void onButton(MicroBitEvent e)
+{
+    if (e.source == MICROBIT_ID_BUTTON_B)
+    {
+        uBit.serial.printf("BUTTON A: ");
+        // read the uart
+        ManagedString s = uBit.serial.read();
+        uBit.display.scroll(s);
+        uBit.serial.printf("%s ", s.toCharArray());
+    }
+
+    if (e.source == MICROBIT_ID_BUTTON_A)
+    {
+        uBit.serial.printf("BUTTON B: ");
+        // uBit.display.print("B");
+    }   
+
+    uBit.serial.printf("\r\n");
+}
+
+// ================================================================================
 
 char *decrypt(const char *encrypted)
 {
@@ -42,7 +69,8 @@ void onData(MicroBitEvent)
     // Si le premier caractère est 'b', on déchiffre le message et on le scroll
     if (first_decrypted == prefix)
     {
-        uBit.display.scroll(decrypt(message.toCharArray()));
+        // uBit.display.scroll(decrypt(message.toCharArray()));
+        uBit.serial.printf("%s\r \n", decrypt(message.toCharArray()));
     }
 
 }
@@ -54,9 +82,12 @@ int main()
 
     uBit.messageBus.listen(MICROBIT_ID_RADIO, MICROBIT_RADIO_EVT_DATAGRAM, onData);
 
-    uBit.radio.setGroup(14);
+    // Create a message bus that listens to button events
+    uBit.messageBus.listen(MICROBIT_ID_BUTTON_A, MICROBIT_BUTTON_EVT_CLICK, onButton);
+    uBit.messageBus.listen(MICROBIT_ID_BUTTON_B, MICROBIT_BUTTON_EVT_CLICK, onButton);
 
     uBit.radio.enable();
+    uBit.radio.setGroup(14);
 
     // Init du message chiffré
     char *cipher = NULL;
@@ -77,7 +108,7 @@ int main()
 
         uBit.radio.datagram.send(cipher);
 
-        uBit.display.scroll(message);
+        // uBit.display.scroll(message);
 
         uBit.sleep(5000);
     }
