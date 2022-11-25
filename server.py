@@ -1,10 +1,5 @@
 # Program to control passerelle between Android application
 # and micro-controller through USB tty
-import time
-import argparse
-import signal
-import sys
-import socket
 import socketserver
 import serial
 import threading
@@ -13,7 +8,10 @@ HOST = "192.168.176.122"
 UDP_PORT = 10000
 MICRO_COMMANDS = ["TL", "LT"]
 FILENAME = "values.txt"
-LAST_VALUE = bytes("je reçois les données mec", "utf-8")
+LAST_VALUE = bytes("["
+                   "{\"id\":1, \"name\":\"Thermomètre\", \"type\":\"T\", \"value\":\"18°c\"},"
+                   "{\"id\":3, \"name\":\"Capteur de luminosité\", \"type\":\"L\", \"value\":\"500\"}"
+                   "]", "utf-8")
 
 
 class ThreadedUDPRequestHandler(socketserver.BaseRequestHandler):
