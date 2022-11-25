@@ -29,9 +29,9 @@ public class Communicator {
         this.messagesToSend = new ArrayBlockingQueue<>(10);
     }
 
-    public static Communicator getCommunicator(String ip, int port) {
+    public static Communicator getCommunicator(Address address) {
         if (Communicator.instance == null) {
-            Communicator.instance = new Communicator(ip, port);
+            Communicator.instance = new Communicator(address.getIp(), address.getPort());
         }
         return Communicator.instance;
     }

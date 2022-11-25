@@ -2,27 +2,32 @@ package com.cpe.irc.projet_iot.sensor;
 
 import androidx.annotation.NonNull;
 
+import org.json.JSONObject;
+
 import java.io.Serializable;
 
 public class Sensor implements Serializable {
+    private int id;
     private String name;
     private String type;
     private String value;
 
     private boolean active;
 
-    public Sensor(String name, String type, String value) {
-        this.name = name;
-        this.type = type;
-        this.value = value;
-        this.active = true;
-    }
-
-    public Sensor(String name, String type, String value, boolean active) {
+    public Sensor(int id, String name, String type, String value, boolean active) {
+        this.id = id;
         this.name = name;
         this.type = type;
         this.value = value;
         this.active = active;
+    }
+
+    public Sensor(int id, String name, String type, String value) {
+        this(id, name, type, value, false);
+    }
+
+    public Sensor(JSONObject jsonObject) {
+        this(jsonObject.optInt("id"), jsonObject.optString("name"), jsonObject.optString("type"), jsonObject.optString("value"), jsonObject.optBoolean("active"));
     }
 
     public String getName() {
