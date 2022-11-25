@@ -9,6 +9,8 @@ MicroBitI2C i2c(I2C_SDA0, I2C_SCL0);
 MicroBitPin P0(MICROBIT_ID_IO_P0, MICROBIT_PIN_P0, PIN_CAPABILITY_DIGITAL_OUT);
 char order[3] = "LT";
 
+char prefix = 'b';
+
 char *encrypt(const char *not_encrypted);
 char *decrypt(const char *encrypted);
 
@@ -107,8 +109,10 @@ int main()
         int lumi_droite = lux % 100;
 
         // Création du message
-        char message[5];
-        sprintf(message, "%d.%d, %d%d%d", temp_gauche, temp_droite, lumi_gauche, lumi_centre, lumi_droite);
+        char message[6];
+        sprintf(message, "%c%d.%d, %d%d%d", prefix, temp_gauche, temp_droite, lumi_gauche, lumi_centre, lumi_droite);
+
+        // uBit.display.scroll(message);
 
         // Encrypt
         cipher = encrypt(message);
