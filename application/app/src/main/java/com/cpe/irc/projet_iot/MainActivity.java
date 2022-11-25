@@ -5,26 +5,13 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 import android.util.Log;
-import android.util.Patterns;
-import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.ProgressBar;
 
 import com.cpe.irc.projet_iot.communication.Address;
-import com.cpe.irc.projet_iot.communication.Communicator;
-import com.cpe.irc.projet_iot.communication.Message;
+import com.cpe.irc.projet_iot.controller.CommunicationController;
+import com.cpe.irc.projet_iot.controller.StorageController;
+import com.cpe.irc.projet_iot.controller.ViewController;
 import com.cpe.irc.projet_iot.sensor.Sensor;
-import com.cpe.irc.projet_iot.sensor.SensorsAdapter;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -34,6 +21,7 @@ public class MainActivity extends AppCompatActivity {
 
     protected ViewController viewController;
     protected CommunicationController communicationController;
+    private StorageController storageController;
 
 
     @Override
@@ -43,42 +31,50 @@ public class MainActivity extends AppCompatActivity {
         this.instanceState = savedInstanceState;
         this.viewController = new ViewController(this);
         this.communicationController = new CommunicationController();
+        this.storageController = new StorageController(this);
         this.afterCreate();
     }
 
     protected void afterCreate() {
-        this.registerIpPort();
+        this.fillOnStart();
+
+        // on edit text change
+        this.viewController.setIpPortView.setOnClickListener((v) -> this.registerIpPort());
     }
 
 
     protected void registerIpPort(){
-        // on edit text change
-        this.viewController.setIpPortView.setOnClickListener((v) -> {
-            this.address = this.loadIpPort(this.viewController.ipView, this.viewController.portView);
-            if (this.communicationController.checkIpPort(this.address)) {
+        this.address = this.loadIpPort(this.viewController.ipView, this.viewController.portView);
+        if (this.communicationController.checkIpPort(this.address)) {
+            this.storageController.storeAddress(this.address);
+            this.viewController.viewLoading(true);
 
-                this.viewController.viewLoading(true);
+            Log.i("IP", "IP: " + this.address.getIp());
+            Log.i("PORT", "PORT: " + this.address.getPort());
 
-                Log.i("IP", "IP: " + this.address.getIp());
-                Log.i("PORT", "PORT: " + this.address.getPort());
+            this.communicationController.setCommunicator(this.address);
 
-                this.communicationController.setCommunicator(this.address);
+            this.updateSensorsList();
+        }
+    }
 
-                this.viewController.inParallel(
-                        () -> {
-                            this.sensors = this.communicationController.loadSensorData();
-                        },
-                        () -> {
-                            this.linkSensorsList(this.sensors);
-                            this.viewController.viewLoading(false);
-                        }
-                );
-            }
-        });
+
+    protected void updateSensorsList() {
+        this.viewController.inParallel(
+                () -> this.sensors = this.communicationController.loadSensorData(),
+                () -> {
+                    this.viewController.linkSensorsList(this.sensors);
+                    this.viewController.updateLastUpdateView();
+                    this.viewController.viewLoading(false);
+                    if (this.viewController.hasLinkedSensorList()){
+                        this.viewController.registerSensorsListObserver(()->this.communicationController.changeOrder(this.sensors));
+                    }
+                }
+        );
     }
 
     @NonNull
-    private Address loadIpPort(EditText ip, EditText port) {
+    protected Address loadIpPort(EditText ip, EditText port) {
         String toCheckIp;
         try {
             toCheckIp = ip.getText().toString();
@@ -97,13 +93,21 @@ public class MainActivity extends AppCompatActivity {
         return new Address(toCheckIp, toCheckPort);
     }
 
-    protected void linkSensorsList(Sensor[] sensors) {
-        // get sensors_list view
-        ListView sensors_list = findViewById(R.id.sensors_list);
-        // create sensors list adapter to convert sensor objects to views
-        SensorsAdapter sensorsListAdapter = new SensorsAdapter(this, sensors);
-        // link sensor adapter to sensors list view
-        sensors_list.setAdapter(sensorsListAdapter);
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (this.viewController.hasLinkedSensorList()) {
+            this.viewController.viewLoading(true);
+            this.updateSensorsList();
+        }
+    }
+
+    protected void fillOnStart() {
+        if (this.storageController.hasSavedAddress()) {
+            this.address = this.storageController.loadAddress();
+            this.viewController.fillIpPortView(this.address);
+            this.registerIpPort();
+        }
     }
 }
 

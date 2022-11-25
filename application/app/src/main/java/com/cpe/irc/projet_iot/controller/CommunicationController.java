@@ -1,4 +1,4 @@
-package com.cpe.irc.projet_iot;
+package com.cpe.irc.projet_iot.controller;
 
 import android.util.Log;
 
@@ -64,11 +64,18 @@ public class CommunicationController {
             }
         }
 
-        return sensors;/*new Sensor[]{
-                new Sensor("Thermomètre", "temperature", "3°c"),
-                new Sensor("Capteur de luminosité", "lumen", "600"),
-                new Sensor("Humidité", "humid", "60%"),
-                new Sensor("Chiantitude", "chiant", "T'es chiant"),
-        };*/
+        return sensors;
     }
+
+    public void changeOrder(Sensor[] sensors){
+        StringBuilder messageToSend = new StringBuilder("setOrder(");
+        for (Sensor sensor : sensors) {
+            messageToSend.append(sensor.getType()).append(",");
+            Log.i("COMMUNICATION NEW ORDER", sensor + "");
+        }
+        messageToSend = new StringBuilder(messageToSend.substring(0, messageToSend.length() - 1) + ")");
+
+        this.communicator.send(messageToSend.toString());
+    }
+
 }

@@ -1,5 +1,10 @@
 package com.cpe.irc.projet_iot.communication;
 
+import androidx.annotation.NonNull;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
@@ -59,5 +64,42 @@ public class Address {
 
     public static Address emptyAddress(){
         return new Address(null, 0);
+    }
+
+    @NonNull
+    public String toString(){
+        return this.ip + ":" + this.port;
+    }
+
+    public JSONObject toJson(){
+        JSONObject json = new JSONObject();
+        try {
+            json.put("ip", this.ip);
+            json.put("port", this.port);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return json;
+    }
+
+    public static Address fromJson(JSONObject json) throws JSONException {
+        return new Address(json.getString("ip"), json.getInt("port"));
+    }
+
+    public String toJsonString(){
+        return this.toJson().toString();
+    }
+
+    public static Address fromJsonString(String json) {
+        try {
+            return Address.fromJson(new JSONObject(json));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public boolean isLoaded(){
+        return this.hasIp() && this.hasPort();
     }
 }

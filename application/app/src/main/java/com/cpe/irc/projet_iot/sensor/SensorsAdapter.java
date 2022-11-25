@@ -1,6 +1,7 @@
 package com.cpe.irc.projet_iot.sensor;
 
 import android.content.Context;
+import android.database.DataSetObserver;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,9 +14,9 @@ import com.cpe.irc.projet_iot.R;
 
 public class SensorsAdapter extends BaseAdapter {
 
-    public static final String TEMPERATURE = "temperature";
-    public static final String LUMINOSITY = "lumen";
-    public static final String HUMIDITY = "humid";
+    public static final String TEMPERATURE = "T";
+    public static final String LUMINOSITY = "L";
+    public static final String HUMIDITY = "H";
 
     private final Context context;
     private final Sensor[] sensors;
@@ -25,6 +26,16 @@ public class SensorsAdapter extends BaseAdapter {
         this.context = context;
         this.sensors = sensors;
         this.layoutInflater = LayoutInflater.from(this.context);
+    }
+
+    public static DataSetObserver SensorsAdapterObserver(Runnable onDataSetChanged) {
+        return new DataSetObserver() {
+            @Override
+            public void onChanged() {
+                super.onChanged();
+                onDataSetChanged.run();
+            }
+        };
     }
 
     @Override
@@ -46,7 +57,7 @@ public class SensorsAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup container) {
         ViewHolder holder;
         if (convertView == null) {
-            convertView = this.layoutInflater.inflate(R.layout.list_item_sensor_layout, null);
+            convertView = this.layoutInflater.inflate(R.layout.list_item_sensor_layout, container, false);
             holder = new ViewHolder();
             holder.sensorImgView = (ImageView) convertView.findViewById(R.id.sensor_img);
             holder.sensorNameView = (TextView) convertView.findViewById(R.id.sensor_name);
@@ -74,7 +85,7 @@ public class SensorsAdapter extends BaseAdapter {
         String pkgName = context.getPackageName();
         // Return 0 if not found.
         int resID = context.getResources().getIdentifier(this.getResNameForSensor(resName) , "drawable", pkgName);
-        Log.i("CustomListView", "Res Name: "+ resName+"==> Res ID = "+ resID);
+        Log.i("SENSOR LIST VIEW", "Res Name: "+ resName+"==> Res ID = "+ resID);
         return resID;
     }
 
@@ -94,7 +105,7 @@ public class SensorsAdapter extends BaseAdapter {
 
 
     private void changeOrder(int id, boolean top) {
-        Log.i("Change Order", "Button #" + String.valueOf(id) + " go " + (top ? "top" : "bottom"));
+        Log.i("Change Order", "Button #" + id + " go " + (top ? "top" : "bottom"));
         Sensor toMove = this.sensors[id];
         if (top) {
             this.sensors[id] = this.sensors[id- 1];

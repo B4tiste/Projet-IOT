@@ -2,12 +2,13 @@ package com.cpe.irc.projet_iot.sensor;
 
 import androidx.annotation.NonNull;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.Serializable;
 
 public class Sensor implements Serializable {
-    private int id;
+    private final int id;
     private String name;
     private String type;
     private String value;
@@ -64,5 +65,23 @@ public class Sensor implements Serializable {
     @Override
     public String toString() {
         return this.name +": "+ this.value;
+    }
+
+    public JSONObject toJSON() {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("id", this.id);
+            jsonObject.put("name", this.name);
+            jsonObject.put("type", this.type);
+            jsonObject.put("value", this.value);
+            jsonObject.put("active", this.active);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return jsonObject;
+    }
+
+    public String toJsonString() {
+        return this.toJSON().toString();
     }
 }
