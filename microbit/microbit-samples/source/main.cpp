@@ -1,9 +1,8 @@
 #include "MicroBit.h"
 
-#define PREFIX "/b/"
-#define PrivateKey "/b/"
-
 MicroBit uBit;
+
+char prefix = 'b';
 
 char *decrypt(const char *encrypted)
 {
@@ -37,7 +36,15 @@ void onData(MicroBitEvent)
 {
     // Message reçu par Radio Frequency
     ManagedString message = uBit.radio.datagram.recv();
-    uBit.display.scroll(decrypt(message.toCharArray()));
+
+    char first_decrypted = decrypt(message.toCharArray())[0];
+    
+    // Si le premier caractère est 'b', on déchiffre le message et on le scroll
+    if (first_decrypted == prefix)
+    {
+        uBit.display.scroll(decrypt(message.toCharArray()));
+    }
+
 }
 
 int main()
