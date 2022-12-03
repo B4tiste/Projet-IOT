@@ -44,7 +44,7 @@ public class Sender extends Messager implements Runnable {
     }
 
     private void send(Message message) throws IOException {
-        this.UDPSocket.send(Message.toPacket(message.msg.getBytes(), this.address, this.port));
+        this.UDPSocket.send(Message.toPacket(message, this.address, this.port));
         Log.i("Sender", " --> " + this.uniqueId + " >> Sender: " + message);
     }
 }

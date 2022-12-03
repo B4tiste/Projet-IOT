@@ -49,6 +49,7 @@ public class CommunicationController {
 
         Sensor[] sensors = new Sensor[0];
         while (message != null){
+            Log.i("MESSAGE", message.toString());
             if(message.toString().equals("ok")){
                 message = this.communicator.receive();
             } else {
@@ -63,7 +64,7 @@ public class CommunicationController {
                     message = null;
                     Log.i("MESSAGE", jSONArray.length() + " sensors loaded");
                 } catch (JSONException e) {
-                    e.printStackTrace();
+                    Log.e("MESSAGE", "Error while parsing JSON: " + e.getMessage());
                 }
             }
 
