@@ -36,7 +36,10 @@ public class Sender extends Messager implements Runnable {
                     Log.i("Sender", "sending message");
                 }
             }
-        } catch (InterruptedException | IOException ignored) {
+        } catch (InterruptedException ignored) {
+            Log.i("Receiver", "Thread interrupted");
+        } catch (IOException error) {
+            Log.e("Receiver", "Error in run: " + error.getMessage());
         }
     }
 

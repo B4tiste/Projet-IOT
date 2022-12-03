@@ -4,8 +4,6 @@ import android.util.Log;
 
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -33,23 +31,13 @@ public class Communicator {
         if (Communicator.instance == null) {
             Communicator.instance = new Communicator(address.getIp(), address.getPort());
         }
+        Communicator.instance.setAddress(address);
         return Communicator.instance;
     }
 
-    public String getIp() {
-        return ip;
-    }
-
-    public void setIp(String ip) {
-        this.ip = ip;
-    }
-
-    public int getPort() {
-        return port;
-    }
-
-    public void setPort(int port) {
-        this.port = port;
+    private void setAddress(Address address) {
+        this.ip = address.getIp();
+        this.port = address.getPort();
     }
 
     public boolean send(String msg) {
@@ -62,21 +50,18 @@ public class Communicator {
         return true;
     }
 
-    public List<Message> receive() {
-        List<Message> msgs = new ArrayList<>();
+    public Message receive() {
+        Message msg = null;
         try {
-            Message msg = this.messagesReceived.poll(30, TimeUnit.SECONDS);
-            if(!msg.msg.equals(""))
-            {
-                msgs.add(msg);
-            }
+            msg = this.messagesReceived.poll(15, TimeUnit.SECONDS);
         } catch (NullPointerException | InterruptedException e) {
             Log.e("COMMUNICATOR", "Error while receiving message from server: " + e.getMessage());
         }
-        return msgs;
+        return msg;
     }
 
     public void initiate() {
+        this.stop();
         try {
         Log.i("Communicator", " --> " + " << Communicator: " + "Start communication");
             this.receiver = new Receiver(this.messagesReceived, 1);
@@ -92,6 +77,25 @@ public class Communicator {
 
         } catch (SocketException | UnknownHostException er) {
             er.printStackTrace();
+        }
+    }
+
+    private void stop() {
+        try {
+            if (this.sender != null) {
+                this.sender.stop();
+            }
+            if (this.receiver != null) {
+                this.receiver.stop();
+            }
+            if(this.receivedThread != null && this.receivedThread.isAlive()){
+                this.receivedThread.interrupt();
+            }
+            if(this.senderThread != null && this.senderThread.isAlive()){
+                this.senderThread.interrupt();
+            }
+        } catch (NullPointerException e) {
+            Log.e("COMMUNICATOR", "Error while stopping communication: " + e.getMessage());
         }
     }
 }

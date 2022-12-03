@@ -1,12 +1,13 @@
 package com.cpe.irc.projet_iot.controller;
 
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.cpe.irc.projet_iot.MainActivity;
 import com.cpe.irc.projet_iot.R;
@@ -27,6 +28,7 @@ public class ViewController {
     public ListView sensorListView;
     protected SensorsAdapter sensorsAdapter;
     public TextView lastUpdateView;
+    public SwipeRefreshLayout swipeRefreshLayout;
 
     public ViewController(MainActivity activity) {
         this.activity = activity;
@@ -36,6 +38,16 @@ public class ViewController {
         this.progressBarView = this.activity.findViewById(R.id.progress_bar);
         this.sensorListView = this.activity.findViewById(R.id.sensors_list);
         this.lastUpdateView = this.activity.findViewById(R.id.last_update);
+        this.swipeRefreshLayout = this.activity.findViewById(R.id.swipe_refresh_layout);
+    }
+
+    public void setRefreshLayoutAction(Runnable action) {
+        SwipeRefreshLayout swipeRefreshLayout = this.swipeRefreshLayout;
+        this.swipeRefreshLayout.setOnRefreshListener(
+                () -> {
+                    action.run();
+                    swipeRefreshLayout.setRefreshing(false);
+                });
     }
 
     // take two function in parameter
@@ -48,19 +60,20 @@ public class ViewController {
     }
 
     public void viewLoading(boolean loading) {
-        Log.i("VIEW", "viewLoading: " + loading);
         if (loading) {
             this.sensorListView.setVisibility(View.GONE);
             this.progressBarView.setVisibility(ProgressBar.VISIBLE);
             this.ipView.setEnabled(false);
             this.portView.setEnabled(false);
             this.setIpPortView.setEnabled(false);
+            this.swipeRefreshLayout.setEnabled(false);
         } else {
             this.sensorListView.setVisibility(View.VISIBLE);
             this.progressBarView.setVisibility(ProgressBar.INVISIBLE);
             this.ipView.setEnabled(true);
             this.portView.setEnabled(true);
             this.setIpPortView.setEnabled(true);
+            this.swipeRefreshLayout.setEnabled(true);
         }
     }
 

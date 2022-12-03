@@ -22,4 +22,8 @@ public abstract class Messager {
     public Message getMessage() throws InterruptedException {
         return this.queue.take();
     }
+
+    public void stop() {
+        this.UDPSocket.close();
+    }
 }

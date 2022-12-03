@@ -1,11 +1,11 @@
 package com.cpe.irc.projet_iot;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.EditText;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.cpe.irc.projet_iot.communication.Address;
 import com.cpe.irc.projet_iot.controller.CommunicationController;
@@ -24,6 +24,10 @@ public class MainActivity extends AppCompatActivity {
     private StorageController storageController;
 
 
+    /**
+    *  Au lancement de l'application, on démarre les
+    *  composants de l'application
+    */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,14 +39,27 @@ public class MainActivity extends AppCompatActivity {
         this.afterCreate();
     }
 
+    /**
+    *  Une fois l'application lancée
+    *  lie des actions aux boutons
+    *  et on vérifie les données sauvegardées
+    */
     protected void afterCreate() {
         this.fillOnStart();
 
-        // on edit text change
         this.viewController.setIpPortView.setOnClickListener((v) -> this.registerIpPort());
+        this.viewController.setRefreshLayoutAction(() -> {
+            if (this.viewController.hasLinkedSensorList()) {
+                this.viewController.viewLoading(true);
+                this.updateSensorsList();
+            }
+        });
     }
 
 
+    /**
+     *  On vérifie si on l'adresse IP et le port et on la sauvegarde
+     */
     protected void registerIpPort(){
         this.address = this.loadIpPort(this.viewController.ipView, this.viewController.portView);
         if (this.communicationController.checkIpPort(this.address)) {
@@ -73,6 +90,9 @@ public class MainActivity extends AppCompatActivity {
         );
     }
 
+    /**
+     *  On charge l'adresse IP et le port depuis les champs
+     */
     @NonNull
     protected Address loadIpPort(EditText ip, EditText port) {
         String toCheckIp;

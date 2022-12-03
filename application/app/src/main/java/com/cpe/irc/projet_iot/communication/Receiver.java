@@ -35,8 +35,10 @@ public class Receiver extends Messager implements Runnable {
                     Log.i("Receiver", " <-- " + this.uniqueId + " << Receiver: " + message);
                 }
             }
-        } catch (InterruptedException | IOException ignored) {
-            Log.e("Receiver", "Error in run");
+        } catch (InterruptedException ignored) {
+            Log.i("Receiver", "Thread interrupted");
+        } catch (IOException error) {
+            Log.e("Receiver", "Error in run: " + error.getMessage());
         }
     }
 

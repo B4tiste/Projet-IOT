@@ -10,14 +10,16 @@ import com.cpe.irc.projet_iot.sensor.Sensor;
 import org.json.JSONArray;
 import org.json.JSONException;
 
-import java.util.List;
-
 public class CommunicationController {
     private Address address;
     private Communicator communicator;
 
     public void setCommunicator(Address address) {
-        if (this.address == null || !this.address.getIp().equals(address.getIp()) || this.address.getPort() != address.getPort()){
+        if (
+                this.address == null ||
+                !this.address.getIp().equals(address.getIp()) ||
+                this.address.getPort() != address.getPort())
+        {
             this.address = address;
             this.communicator = Communicator.getCommunicator(this.address);
             this.communicator.initiate();
@@ -41,29 +43,31 @@ public class CommunicationController {
     }
 
     public Sensor[] loadSensorData() {
-        Log.i("main", "Thread initiate");
         this.communicator.send("getValues()");
 
-        Log.i("Main", "Loading datas");
-
-        List<Message> messages = this.communicator.receive();
+        Message message = this.communicator.receive();
 
         Sensor[] sensors = new Sensor[0];
-        for (Message message : messages) {
-            Log.i("MESSAGE", message.toString());
-            try {
-                JSONArray jSONArray = new JSONArray(message.toString());
-                sensors = new Sensor[jSONArray.length()];
-                for (int i = 0; i < jSONArray.length(); i++) {
-                    sensors[i] = new Sensor(jSONArray.getJSONObject(i));
+        while (message != null){
+            if(message.toString().equals("ok")){
+                message = this.communicator.receive();
+            } else {
+                Log.i("MESSAGE", message.toString());
+                try {
+                    JSONArray jSONArray = new JSONArray(message.toString());
+                    sensors = new Sensor[jSONArray.length()];
+                    for (int i = 0; i < jSONArray.length(); i++) {
+                        sensors[i] = new Sensor(jSONArray.getJSONObject(i));
+                    }
+
+                    message = null;
+                    Log.i("MESSAGE", jSONArray.length() + " sensors loaded");
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-
-                Log.i("MESSAGE", jSONArray.length() + "");
-            } catch (JSONException e) {
-                e.printStackTrace();
             }
-        }
 
+        }
         return sensors;
     }
 
