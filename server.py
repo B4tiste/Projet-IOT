@@ -1,5 +1,6 @@
 # Program to control passerelle between Android application
 # and micro-controller through USB tty
+import re
 import socketserver
 import serial
 import threading
@@ -18,21 +19,46 @@ class ThreadedUDPRequestHandler(socketserver.BaseRequestHandler):
 
     def handle(self):
         data = self.request[0].strip()
-        dataStr = data.decode("utf-8")
+        dataStr = self.decode(data.decode("utf-8"))
         socket = self.request[1]
         current_thread = threading.current_thread()
         print("{}: client: {}, wrote: {}".format(
             current_thread.name, self.client_address, data))
         if dataStr != "":
+            regex = re.compile(r'setOrder\((([A-z])|(([A-z],)+[A-z]))\)')
             if dataStr in MICRO_COMMANDS:  # Send message through UART
                 print(dataStr)
                 sendUARTMessage(data)
             elif dataStr == "getValues()":  # Sent last value received from micro-controller
                 print("getValues():", LAST_VALUE)
-                socket.sendto(LAST_VALUE, (self.client_address[0], UDP_PORT))
+                message_to_send = bytes(self.encode(LAST_VALUE.decode("utf-8")), "utf-8")
+                socket.sendto(message_to_send, (self.client_address[0], UDP_PORT))
+                print("message send: {}".format(message_to_send))
                 # TODO: Create last_values_received as global variable
+            elif regex.match(dataStr + ""):  # register new order to micro-controller
+                regex = re.compile(r'\((([A-z])|(([A-z],)+[A-z]))\)')
+                orders = regex.findall(dataStr)[0][0].split(",")
+                print(dataStr + ":", orders)
+                message_to_send = bytes(self.encode(self.encode("ok")), "utf-8")
+                socket.sendto(message_to_send, (self.client_address[0], UDP_PORT))
+                print("message send: {}".format(message_to_send))
+                # TODO: Send message to micro-controller
             else:
                 print("Unknown message: ", dataStr)
+
+    def cesar(self, message, decalage):
+        message_encode = ""
+        for i in range(0, len(message)):
+            char_to_int = ord(message[i]) + decalage
+            int_to_char = chr(char_to_int)
+            message_encode += int_to_char
+        return message_encode
+
+    def encode(self, message):
+        return self.cesar(message, 3)
+
+    def decode(self, message):
+        return self.cesar(message, -3)
 
 
 class ThreadedUDPServer(socketserver.ThreadingMixIn, socketserver.UDPServer):
