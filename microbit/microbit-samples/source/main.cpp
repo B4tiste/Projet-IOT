@@ -11,18 +11,19 @@ int connected = 0;
 
 void onButton(MicroBitEvent e)
 {
-    if (e.source == MICROBIT_ID_BUTTON_B)
+    if (e.source == MICROBIT_ID_BUTTON_A)
     {
         uBit.serial.printf("BUTTON A: ");
         // read the uart
         ManagedString s = uBit.serial.read();
-        uBit.display.scroll(s);
         uBit.serial.printf("%s ", s.toCharArray());
+        uBit.display.scroll("A");
     }
 
-    if (e.source == MICROBIT_ID_BUTTON_A)
+    if (e.source == MICROBIT_ID_BUTTON_B)
     {
         uBit.serial.printf("BUTTON B: ");
+        uBit.display.scroll("B");
         // uBit.display.print("B");
     }   
 
@@ -30,6 +31,16 @@ void onButton(MicroBitEvent e)
 }
 
 // ================================================================================
+
+void onSerial(MicroBitEvent)
+{
+    ManagedString rec;
+
+    rec = uBit.serial.readUntil(ManagedString("\r\n"), ASYNC);
+
+    uBit.serial.printf("Recu\n");
+    uBit.serial.printf("%s", rec.toCharArray());
+}
 
 char *decrypt(const char *encrypted)
 {
@@ -80,11 +91,21 @@ int main()
     // Initialise the micro:bit runtime.
     uBit.init();
 
+    uBit.display.scroll("X");
+
+    uBit.serial.baud(115200);
+
+    uBit.messageBus.listen(MICROBIT_ID_SERIAL, MICROBIT_SERIAL_EVT_DELIM_MATCH, onSerial);
+
+    uBit.serial.eventOn(ManagedString("\n"), ASYNC);
+
+    uBit.serial.read(ASYNC);
+
     uBit.messageBus.listen(MICROBIT_ID_RADIO, MICROBIT_RADIO_EVT_DATAGRAM, onData);
 
     // Create a message bus that listens to button events
-    uBit.messageBus.listen(MICROBIT_ID_BUTTON_A, MICROBIT_BUTTON_EVT_CLICK, onButton);
-    uBit.messageBus.listen(MICROBIT_ID_BUTTON_B, MICROBIT_BUTTON_EVT_CLICK, onButton);
+    // uBit.messageBus.listen(MICROBIT_ID_BUTTON_A, MICROBIT_BUTTON_EVT_CLICK, onButton);
+    // uBit.messageBus.listen(MICROBIT_ID_BUTTON_B, MICROBIT_BUTTON_EVT_CLICK, onButton);
 
     uBit.radio.enable();
     uBit.radio.setGroup(14);
