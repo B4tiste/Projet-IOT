@@ -1,17 +1,20 @@
 # Program to control passerelle between Android application
 # and micro-controller through USB tty
+import json
 import re
 import socketserver
 import serial
 import threading
 
-HOST = "192.168.176.122"
+from serveur.datas.Sensor import Sensor
+
+HOST = "192.168.1.24"
 UDP_PORT = 10000
 MICRO_COMMANDS = ["TL", "LT"]
-FILENAME = "values.txt"
-LAST_VALUE = bytes("["
-                   "{\"id\":1, \"name\":\"Thermomètre\", \"type\":\"T\", \"value\":\"18°c\"},"
-                   "{\"id\":3, \"name\":\"Capteur de luminosité\", \"type\":\"L\", \"value\":\"500\"}"
+FILENAME = "../values.txt"
+LAST_VALUE = bytes("[" +
+                   str(Sensor(0, "Thermometre", "18°c", "T")) + "," +
+                   str(Sensor(1, "Capteur de luminosité", "500", "L")) +
                    "]", "utf-8")
 
 
@@ -30,8 +33,8 @@ class ThreadedUDPRequestHandler(socketserver.BaseRequestHandler):
                 print(dataStr)
                 sendUARTMessage(data)
             elif dataStr == "getValues()":  # Sent last value received from micro-controller
-                print("getValues():", LAST_VALUE)
-                message_to_send = bytes(self.encode(LAST_VALUE.decode("utf-8")), "utf-8")
+                print("getValues():", json.dumps(Sensor.get_sensors()))
+                message_to_send = bytes(self.encode(json.dumps(Sensor.get_sensors())), "utf-8")
                 socket.sendto(message_to_send, (self.client_address[0], UDP_PORT))
                 print("message send: {}".format(message_to_send))
                 # TODO: Create last_values_received as global variable
@@ -86,7 +89,7 @@ def initUART():
     ser.rtscts = False  # disable hardware (RTS/CTS) flow control
     ser.dsrdtr = False  # disable hardware (DSR/DTR) flow control
     # ser.writeTimeout = 0     #timeout for write
-    
+
     print('Starting Up Serial Monitor')
     try:
         ser.open()
@@ -106,7 +109,7 @@ if __name__ == '__main__':
         initUART()
     except:
         pass
-    
+
     f = open(FILENAME, "a")
     print('Press Ctrl-C to quit.')
 
@@ -119,10 +122,10 @@ if __name__ == '__main__':
         server_thread.start()
         print("Server started at {} port {}".format(HOST, UDP_PORT))
 
-        if (ser.isOpen()):
+        if ser.isOpen():
             while ser.isOpen():
                 # time.sleep(100)
-                if (ser.inWaiting() > 0):  # if incoming bytes are waiting
+                if ser.inWaiting() > 0:  # if incoming bytes are waiting
                     data_bytes = ser.read(ser.inWaiting())
                     data_str = data_bytes.decode('utf-8')
                     f.write(data_str + "\n")
