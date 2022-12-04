@@ -80,4 +80,4 @@ graph TD
     - UDP
   - 3 - Communication bidirectionnelle avec le smartphone
     - Écoute des messages envoyés du serveur
-
+  - 4 - [Documentation complète](https://github.com/B4tiste/Projet-IOT/blob/main/application/README.md)
