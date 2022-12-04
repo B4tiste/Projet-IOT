@@ -1,48 +1,93 @@
-# Création de l’application Android
+# Application Android
 
-La dernière partie de la mise en place de l’architecture IoT consiste à développer une application
-Android qui permet de contrôler l’ordre d’affichage des données collectées sur un des objets en
-particulier. Ainsi, l’application a deux fonctionnalités, le choix de l’affichage des données d’un des
-objets et le choix du serveur sur lequel cela s’applique.
+## Description
 
-Pour simplifier, on assume qu’il y a seulement un objet associé à chaque serveur et donc on doit
-choisir seulement l’adresse du serveur de destination et pas un des objets qui lui sont associés.
+### Connexion
 
-Pour faciliter le développement de votre application, les données seront envoyées via le protocole
-UDP, et votre Smartphone sera connecté au serveur via WiFi si vous êtes en physique ou via le
-réseau interne de votre PC si vous êtes en simulateur.
+L'application Android permet de gérer les données affichés sur l'écran OLED.
+
+Pour ça on définis l'adresse IP et le port du serveur que l'on souhaite utiliser.
+
+Puis on lance la connexion.
+
+### L'affichage
+
+Les données des capteurs récupérés depuis le serveur sont affichés sur l'écran sous une forme de liste.
+
+L'ordre de cette liste est affiché en fonction des données reçus par le serveur.
+
+Grâce à des boutons fléchés, on peut choisir de changer l'ordre d'affichage des données.
+
+## Architecture
+
+L'application Android est composé en trois niveaux principaux :
+1. L'activité principale
+2. Les controllers
+3. Les classes utilitaires
+
+### L'activité principale
+
+L'activité principale est la classe principale de l'application.
+
+Elle est appelé au lancement de l'application et permet de gérer les différents appelles.
+
+### Les controllers
+
+Les controllers vont pouvoir chacun gérer une partie importante de l'application. (Communication avec le serveur, affichage des données, accès au stockage.)
+
+### Les classes utilitaires
+
+Les classes utilitaires vont permettre de gérer des données de manière plus simple.
+
+Elles sont utilisées par les controllers pour gérer les données.
+
+### Graphique de l'architecture
+
+```mermaid
+graph TD
+    
+    A[Activité principale] --> B[Communication Controller] & C[Storage Controller] & D[View Controller]
+    
+    
+    B --> E[Communicator] & F[Address] & G[Sensors]
+    
+    K --> M[Crypter] 
+    L --> Q[Crypter] 
+    
+    E --> H[Sender] & I[Receiver] & K[Message]
+    
+    H & I --> J[Messager]
+    
+    C --> L[Storage]
+    
+    D --> N[Views] & O[Sensors Adapter]
+    
+    O --> P[Sensor]
+    
+```
+
+## Particularités de l'application
+
+### Affichage
+
+L'affichage peut être rechargé en tirant la liste vers le bas.
+
+La liste est dynamique et peut contenir autant d'éléments que reçu.
+
+L'icone de l'application supporte les icônes à thème d'Android 13.
+
+### Communication
+
+La communication avec le serveur est gérée par un thread et est donc non bloquante pour le reste de l'application.
+
+La communication est sécurisée par un chiffrement césar.
+
+### Stockage
 
 
-## Exercice 1 : choix d’affichage
+Le stockage des données est géré dans un fichier JSON.
 
-Dans un premier temps votre application devra être en mesure de définir un ordre d’affichage
-pour les 3 différentes données collectées (Humidité, Luminosité, Température). Vous pouvez, pour ceci, afficher les trois données à l’écran
-et par simple pression du doigt définir l’ordre d’affichage des données. Ceci n’est qu’un exemple, et
-le choix d’interface visuel de votre application reste libre.
+L'adresse IP et le port du serveur sont stockés dans le fichier.
 
+Le stockage est sécurisé par un chiffrement césar.
 
-## Exercice 2 : définir le serveur de destination
-
-En plus de choisir l’ordre d’affichage des données, votre application doit être en mesure de choisir
-le serveur de destination. En effet, le but est de pouvoir contrôler l’affichage des données pour
-chaque objet via le serveur avec lequel il communique. Ainsi, le choix du serveur dans l’application
-est indispensable. La configuration du serveur dans l’application Android se fait via l’adresse IP
-du serveur et son port d’écoute (par défaut : 10000). Donc dans votre application Android, vous
-devez disposer de deux champs dans lequel il sera possible de saisir une adresse IP et un port, qui
-permettront la communication avec le serveur souhaité.
-
-De plus, la communication sera effectuée via le protocole UDP, et aucun ACK n’est demandé.
-Ainsi, votre application doit seulement faire de l’émission en direction du serveur, sans se préoccuper
-de devoir réceptionner des paquets. Les données envoyées par votre application seront les 2 lettres
-majuscules indiquant l’ordre d’affichage dans l’écran OLED.
-
-## Exercice 3 : Communication bidirectionnelle avec le Smartphone
-
-Dans l’objectif d’être capable d’afficher les données également sur votre Smartphone, votre
-application doit être en mesure de recevoir des messages venant du serveur. Tout comme le serveur
-envoie des données à l’objet, ce dernier devra pouvoir envoyer les mêmes données avec le même
-format à votre Smartphone. Ce dernier devra être capable de réceptionner les données et de les
-afficher dans l’application créée précédemment.
-
-De plus, le Smartphone ne doit réceptionner que les données émises depuis le serveur avec lequel
-il est connecté (défini dans l’exercice précédent).
