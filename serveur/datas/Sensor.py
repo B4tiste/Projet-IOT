@@ -12,6 +12,19 @@ class Sensor:
         self.value = value
         self.type = type_sensor
 
+    @staticmethod
+    def create_sensor(name, value, type_sensor):
+        '''Crée un capteur'''
+        return Sensor(Sensor.get_last_id(type_sensor) + 1, name, value, type_sensor)
+
+    @staticmethod
+    def load(id_sensor, type_sensor):
+        '''Charge un capteur'''
+        for sensor in Register.get_sensors(type_sensor):
+            if sensor["id"] == id_sensor:
+                return Sensor(sensor["id"], sensor["name"], sensor["value"], sensor["type"])
+        return None
+
     def __str__(self):
         return json.dumps(self.__dict__)
 
@@ -28,11 +41,25 @@ class Sensor:
         '''Enregistre le capteur'''
         Register.add_sensors_data(self.type, self.__dict__)
 
-    def get_last_value(self):
+    @staticmethod
+    def get_last_value(type_sensor):
         '''Retourne la dernière valeur du capteur'''
-        return Register.get_last_value(self.type)
+        last_sensor = Register.get_last_value(type_sensor)
+        if last_sensor is not None:
+            return Sensor(last_sensor["id"], last_sensor["name"], last_sensor["value"], last_sensor["type"])
+        else:
+            return None
 
     @staticmethod
     def get_sensors():
         '''Retourne les capteurs'''
         return Register.get_all_sensors_last_value()
+
+    @staticmethod
+    def get_last_id(type_sensor):
+        '''Retourne le dernier id d'un capteur'''
+        last_sensor = Sensor.get_last_value(type_sensor)
+        if last_sensor is not None:
+            return last_sensor.id
+        else:
+            return 0

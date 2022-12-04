@@ -88,3 +88,4 @@ class Register:
         datas = Register.get_sensors(sensor)
         datas.append(data)
         Register.write(json.dumps(datas), sensor)
+
