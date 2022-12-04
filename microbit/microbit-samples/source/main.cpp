@@ -4,8 +4,11 @@
 MicroBit uBit;
 
 char prefix = 'b';
+char message[4] = "LT";
 
 int connected = 0;
+
+ManagedString rec; 
 
 // ================================================================================
 
@@ -34,12 +37,27 @@ void onButton(MicroBitEvent e)
 
 void onSerial(MicroBitEvent)
 {
-    ManagedString rec;
-
     rec = uBit.serial.readUntil(ManagedString("\r\n"), ASYNC);
 
-    uBit.serial.printf("Recu\n");
-    uBit.serial.printf("%s", rec.toCharArray());
+    if ((rec.toCharArray())[0] == prefix)
+    {
+        uBit.display.scroll("V");
+
+        if(strcmp(rec.toCharArray(), "bTL"))
+        {
+            strcpy(message, "LT");
+            uBit.display.scroll(message);
+        }
+        else
+        {
+            strcpy(message, "TL");
+            uBit.display.scroll(message);
+        }
+    }
+    else
+    {
+        uBit.display.scroll("X");
+    }
 }
 
 char *decrypt(const char *encrypted)
@@ -72,7 +90,7 @@ char *encrypt(const char *decrypted)
 
 void onData(MicroBitEvent)
 {
-    // Message reçu par Radio Frequency
+    // Message reçu par RF
     ManagedString message = uBit.radio.datagram.recv();
 
     char first_decrypted = decrypt(message.toCharArray())[0];
@@ -91,7 +109,7 @@ int main()
     // Initialise the micro:bit runtime.
     uBit.init();
 
-    uBit.display.scroll("X");
+    uBit.display.scroll("START");
 
     uBit.serial.baud(115200);
 
@@ -113,17 +131,8 @@ int main()
     // Init du message chiffré
     char *cipher = NULL;
 
-    int cpt = 1;
-    // Création du message "LT"
-    char message[3] = "LT";
-
     while (true)
     {
-        if (cpt) strcpy(message, "LT");
-        else strcpy(message, "TL");
-
-        cpt = !cpt;
-
         // Chiffrement du message
         cipher = encrypt(message);
 
