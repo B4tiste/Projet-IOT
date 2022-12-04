@@ -63,6 +63,7 @@ public class CommunicationController {
                     message = null;
                     Log.i("MESSAGE", jSONArray.length() + " sensors loaded");
                 } catch (JSONException e) {
+                    message = null;
                     Log.e("MESSAGE", "Error while parsing JSON: " + e.getMessage());
                 }
             }
