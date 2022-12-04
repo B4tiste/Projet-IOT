@@ -39,7 +39,7 @@ class ThreadedUDPRequestHandler(socketserver.BaseRequestHandler):
                 regex = re.compile(r'\((([A-z])|(([A-z],)+[A-z]))\)')
                 orders = regex.findall(dataStr)[0][0].split(",")
                 print(dataStr + ":", orders)
-                message_to_send = bytes(self.encode(self.encode("ok")), "utf-8")
+                message_to_send = bytes(self.encode("ok"), "utf-8")
                 socket.sendto(message_to_send, (self.client_address[0], UDP_PORT))
                 print("message send: {}".format(message_to_send))
                 # TODO: Send message to micro-controller
