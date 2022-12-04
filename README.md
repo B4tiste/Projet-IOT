@@ -4,6 +4,14 @@ Repository des fichiers sources du projet IOT 4IRC
 
 Branche: **main**
 
+## Architecture du dépôt 
+* Application : Projet Android Studio de l'application Android
+* Serveur : 
+    - Dossier datas : Répertoire contenant les classes et données enregistrées reçues des capteurs
+    - server.py : Code source du serveur Python
+* ubit-capteurs : Code source situé dans le fichier /microbit-samples/source/main.cpp
+* ubit-passerelle : Code source situé dans le fichier /microbit-samples/source/main.cpp
+
 ```mermaid
 graph TD
     A[Application Android] --> B[Serveur Python]
