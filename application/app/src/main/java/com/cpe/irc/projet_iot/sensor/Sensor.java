@@ -7,6 +7,9 @@ import org.json.JSONObject;
 
 import java.io.Serializable;
 
+/**
+ * Classe représentant un capteur
+ */
 public class Sensor implements Serializable {
     private final int id;
     private String name;
@@ -15,6 +18,14 @@ public class Sensor implements Serializable {
 
     private boolean active;
 
+    /**
+     * Constructeur de la classe Sensor
+     * @param id id du capteur
+     * @param name nom du capteur
+     * @param type type du capteur
+     * @param value valeur du capteur
+     * @param active état du capteur
+     */
     public Sensor(int id, String name, String type, String value, boolean active) {
         this.id = id;
         this.name = name;
@@ -23,10 +34,21 @@ public class Sensor implements Serializable {
         this.active = active;
     }
 
+    /**
+     * Constructeur de la classe Sensor
+     * @param id id du capteur
+     * @param name nom du capteur
+     * @param type type du capteur
+     * @param value valeur du capteur
+     */
     public Sensor(int id, String name, String type, String value) {
         this(id, name, type, value, false);
     }
 
+    /**
+     * Constructeur de la classe Sensor à partir d'un JSONObject
+     * @param jsonObject JSONObject contenant les informations du capteur
+     */
     public Sensor(JSONObject jsonObject) {
         this(jsonObject.optInt("id"), jsonObject.optString("name"), jsonObject.optString("type"), jsonObject.optString("value"), jsonObject.optBoolean("active"));
     }
@@ -67,6 +89,10 @@ public class Sensor implements Serializable {
         return this.name +": "+ this.value;
     }
 
+    /**
+     * Convertit le capteur en JSONObject
+     * @return JSONObject contenant les informations du capteur
+     */
     public JSONObject toJSON() {
         JSONObject jsonObject = new JSONObject();
         try {
@@ -81,6 +107,10 @@ public class Sensor implements Serializable {
         return jsonObject;
     }
 
+    /**
+     * Convertit le capteur en string JSON
+     * @return string JSON contenant les informations du capteur
+     */
     public String toJsonString() {
         return this.toJSON().toString();
     }

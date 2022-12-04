@@ -8,6 +8,9 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Classe permettant de gérer une communication avec le serveur
+ */
 public class Communicator {
     static private Communicator instance = null;
 
@@ -27,6 +30,11 @@ public class Communicator {
         this.messagesToSend = new ArrayBlockingQueue<>(10);
     }
 
+    /**
+     * Permet de récupérer l'instance du Communicator
+     * @param address l'adresse du serveur
+     * @return l'instance du Communicator
+     */
     public static Communicator getCommunicator(Address address) {
         if (Communicator.instance == null) {
             Communicator.instance = new Communicator(address.getIp(), address.getPort());
@@ -35,11 +43,18 @@ public class Communicator {
         return Communicator.instance;
     }
 
+    /**
+     * Permet de définir une adresse pour le Communicator
+     * @param address l'adresse du serveur
+     */
     private void setAddress(Address address) {
         this.ip = address.getIp();
         this.port = address.getPort();
     }
 
+    /**
+     * Met un message sur la liste des messages à envoyer
+     */
     public boolean send(String msg) {
         try {
             this.messagesToSend.put(new Message(msg));
@@ -50,6 +65,9 @@ public class Communicator {
         return true;
     }
 
+    /**
+     * Récupère un message de la liste des messages reçus
+     */
     public Message receive() {
         Message msg = null;
         try {
@@ -60,6 +78,9 @@ public class Communicator {
         return msg;
     }
 
+    /**
+     * Permet de démarrer les threads de communication
+     */
     public void initiate() {
         this.stop();
         try {
@@ -80,6 +101,9 @@ public class Communicator {
         }
     }
 
+    /**
+     * Permet d'arrêter les threads de communication
+     */
     private void stop() {
         try {
             if (this.sender != null) {

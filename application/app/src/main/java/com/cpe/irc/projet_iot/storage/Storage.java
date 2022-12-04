@@ -2,7 +2,8 @@ package com.cpe.irc.projet_iot.storage;
 
 import android.content.Context;
 
-import java.io.File;
+import com.cpe.irc.projet_iot.data.Crypter;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -10,25 +11,25 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
+/**
+ * Classe pour gérer le stockage des données.
+ */
 public class Storage {
-    private static final String FILENAME = "sensors.json";
     private final Context context;
 
+    /**
+     * Constructeur de la classe de stockage.
+     * @param context le contexte de l'application.
+     */
     public Storage(Context context) {
         this.context = context;
     }
 
-    public void getStorage(String filename){
-        File directory;
-        if (filename.isEmpty()) {
-            directory = this.context.getFilesDir();
-        }
-        else {
-            directory = this.context.getDir(filename, Context.MODE_PRIVATE);
-        }
-        File[] files = directory.listFiles();
-    }
-
+    /**
+     * Récupere le contenu d'un fichier.
+     * @param filename le nom du fichier.
+     * @return le contenu du fichier.
+     */
     public String getFile(String filename){
         FileInputStream file;
         String content = null;
@@ -41,10 +42,17 @@ public class Storage {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
+        content = Crypter.decode(content);
         return content;
     }
 
+    /**
+     * Sauvegarde un fichier.
+     * @param filename le nom du fichier.
+     * @param content le contenu du fichier.
+     */
     public void saveFile(String filename, String content){
+        content = Crypter.encode(content);
         try {
             FileOutputStream fos = this.context.openFileOutput(filename, Context.MODE_PRIVATE);
             fos.write(content.getBytes(StandardCharsets.UTF_8));
@@ -54,6 +62,11 @@ public class Storage {
         }
     }
 
+    /**
+     * Vérifie si un fichier existe.
+     * @param filename le nom du fichier.
+     * @return true si le fichier existe, false sinon.
+     */
     public boolean hasFile(String filename) {
         return this.context.getFileStreamPath(filename).exists();
     }

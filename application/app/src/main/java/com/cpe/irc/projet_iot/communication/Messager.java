@@ -3,6 +3,9 @@ package com.cpe.irc.projet_iot.communication;
 import java.net.DatagramSocket;
 import java.util.concurrent.BlockingQueue;
 
+/**
+ * Base commune au système de réception et d'envoi
+ */
 public abstract class Messager {
     protected static int lastId = 0;
     protected BlockingQueue<Message> queue;

@@ -9,7 +9,9 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.concurrent.BlockingQueue;
 
-
+/**
+ * Classe runnable qui permet d'envoyer les messages UDP
+ */
 public class Sender extends Messager implements Runnable {
     private final InetAddress address;
     private final int port;

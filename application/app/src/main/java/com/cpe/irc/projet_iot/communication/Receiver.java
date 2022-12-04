@@ -8,7 +8,9 @@ import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.util.concurrent.BlockingQueue;
 
-
+/**
+ * Classe runnable qui permet de recevoir les messages UDP
+ */
 public class Receiver extends Messager implements Runnable {
 
     public Receiver(BlockingQueue<Message> queue, int delay, int port) throws SocketException {

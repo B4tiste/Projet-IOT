@@ -18,6 +18,10 @@ import com.cpe.irc.projet_iot.sensor.SensorsAdapter;
 import java.text.DateFormat;
 import java.util.Date;
 
+/**
+ * Classe controller de la vue.
+ * Gère les interactions entre l'utilisateur et l'application.
+ */
 public class ViewController {
     protected MainActivity activity;
 
@@ -30,6 +34,10 @@ public class ViewController {
     public TextView lastUpdateView;
     public SwipeRefreshLayout swipeRefreshLayout;
 
+    /**
+     * Récuperes les éléments important de la vue.
+     * @param activity l'activité principale.
+     */
     public ViewController(MainActivity activity) {
         this.activity = activity;
         this.ipView = this.activity.findViewById(R.id.ip_address);
@@ -41,6 +49,10 @@ public class ViewController {
         this.swipeRefreshLayout = this.activity.findViewById(R.id.swipe_refresh_layout);
     }
 
+    /**
+     * Définis les actions à effectuer lors du refresh de la vue.
+     * @param action l'action à effectuer.
+     */
     public void setRefreshLayoutAction(Runnable action) {
         SwipeRefreshLayout swipeRefreshLayout = this.swipeRefreshLayout;
         this.swipeRefreshLayout.setOnRefreshListener(
@@ -50,7 +62,13 @@ public class ViewController {
                 });
     }
 
-    // take two function in parameter
+    /**
+     * Permet d'exécuter une action sur l'UI après une première action.
+     * Important pour les actions asynchrones.
+     *
+     * @param function La première action à effectuer.
+     * @param onUiThread La seconde action à effectuer sur l'interface.
+     */
     public void inParallel(Runnable function, Runnable onUiThread) {
         Thread communicationThread = new Thread(() -> {
             function.run();
@@ -59,6 +77,10 @@ public class ViewController {
         communicationThread.start();
     }
 
+    /**
+     * Affiche l'écran de chargement.
+     * @param loading true pour afficher l'écran de chargement, false sinon.
+     */
     public void viewLoading(boolean loading) {
         if (loading) {
             this.sensorListView.setVisibility(View.GONE);
@@ -77,6 +99,10 @@ public class ViewController {
         }
     }
 
+    /**
+     * Lie les données des capteurs à la liste de la vue.
+     * @param sensors les données des capteurs.
+     */
     public void linkSensorsList(Sensor[] sensors) {
         // create sensors list adapter to convert sensor objects to views
         this.sensorsAdapter = new SensorsAdapter(this.activity, sensors);
@@ -86,15 +112,25 @@ public class ViewController {
 
     }
 
+    /**
+     * Vérifie si une liste de capteurs est définie.
+     * @return true si une liste de capteurs est définie, false sinon.
+     */
     public boolean hasLinkedSensorList(){
         return this.sensorsAdapter != null;
     }
 
+    /**
+     * Définie une action à effectuer lors du changement de la liste de capteurs.
+     * @param onChange l'action à effectuer.
+     */
     public void registerSensorsListObserver(Runnable onChange){
         this.sensorsAdapter.registerDataSetObserver(SensorsAdapter.SensorsAdapterObserver(onChange));
     }
 
-
+    /**
+     * Met à jour la date de la dernière mise à jour.
+     */
     public void updateLastUpdateView() {
         Date now = new Date();
         DateFormat formatter = DateFormat.getDateTimeInstance();
@@ -103,6 +139,10 @@ public class ViewController {
         this.lastUpdateView.setVisibility(View.VISIBLE);
     }
 
+    /**
+     * Rentre les données de l'adresse dans les champs de la vue.
+     * @param address l'adresse à afficher.
+     */
     public void fillIpPortView(Address address) {
         this.ipView.setText(address.getIp());
         this.portView.setText(String.valueOf(address.getPort()));

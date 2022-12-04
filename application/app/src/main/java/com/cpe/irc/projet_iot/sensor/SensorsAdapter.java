@@ -12,6 +12,9 @@ import android.widget.TextView;
 
 import com.cpe.irc.projet_iot.R;
 
+/**
+ *  Classe permettant de gérer l'affichage des capteurs dans la liste
+ */
 public class SensorsAdapter extends BaseAdapter {
 
     public static final String TEMPERATURE = "T";
@@ -22,12 +25,22 @@ public class SensorsAdapter extends BaseAdapter {
     private final Sensor[] sensors;
     private final LayoutInflater layoutInflater;
 
+    /**
+     * Constructeur de la classe
+     * @param context Contexte de l'application
+     * @param sensors Tableau de capteurs
+     */
     public SensorsAdapter(Context context, Sensor[] sensors) {
         this.context = context;
         this.sensors = sensors;
         this.layoutInflater = LayoutInflater.from(this.context);
     }
 
+    /**
+     * Applique une action lorsque l'ordre de la liste est modifié
+     * @param onDataSetChanged Action à effectuer
+     * @return L'observer
+     */
     public static DataSetObserver SensorsAdapterObserver(Runnable onDataSetChanged) {
         return new DataSetObserver() {
             @Override
@@ -80,7 +93,11 @@ public class SensorsAdapter extends BaseAdapter {
         return convertView;
     }
 
-    // Find Image ID corresponding to the name of the image (in the directory mipmap).
+    /**
+     * Récupère l'id d'une image à partir de son nom
+     * @param resName Nom de l'image
+     * @return L'id de l'image
+     */
     public int getMipmapResIdByName(String resName)  {
         String pkgName = context.getPackageName();
         // Return 0 if not found.
@@ -89,6 +106,11 @@ public class SensorsAdapter extends BaseAdapter {
         return resID;
     }
 
+    /**
+     * Récupère le nom de l'image à partir du type de capteur
+     * @param sensorType Type de capteur
+     * @return Le nom de l'image
+     */
     private String getResNameForSensor(String sensorType) {
         switch (sensorType) {
             case TEMPERATURE:
@@ -103,7 +125,11 @@ public class SensorsAdapter extends BaseAdapter {
     }
 
 
-
+    /**
+     * Classe permettant de gérer l'ordres des éléments de la liste
+     * @param id L'id de l'élément à bouger dans la liste
+     * @param top position visée par l'élément
+     */
     private void changeOrder(int id, boolean top) {
         Log.i("Change Order", "Button #" + id + " go " + (top ? "top" : "bottom"));
         Sensor toMove = this.sensors[id];
@@ -117,6 +143,11 @@ public class SensorsAdapter extends BaseAdapter {
         this.notifyDataSetChanged();
     }
 
+    /**
+     * Permet de lier les boutons de changement d'ordre à la fonction de changement d'ordre
+     * @param id L'id de l'élément à bouger dans la liste
+     * @param view L'élément de la liste
+     */
     private void setOrderFunction(int id, View view) {
         View buttonUp = view.findViewById(R.id.button_up);
         View buttonDown = view.findViewById(R.id.button_down);

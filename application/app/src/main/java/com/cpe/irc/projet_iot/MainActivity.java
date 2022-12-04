@@ -13,6 +13,9 @@ import com.cpe.irc.projet_iot.controller.StorageController;
 import com.cpe.irc.projet_iot.controller.ViewController;
 import com.cpe.irc.projet_iot.sensor.Sensor;
 
+/**
+ * Activité principale de l'application
+ */
 public class MainActivity extends AppCompatActivity {
 
     protected Bundle instanceState;
@@ -75,7 +78,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
+    /**
+     * On met à jour la liste des capteurs de façon asynchrone
+     */
     protected void updateSensorsList() {
         this.viewController.inParallel(
                 () -> this.sensors = this.communicationController.loadSensorData(),
@@ -113,6 +118,9 @@ public class MainActivity extends AppCompatActivity {
         return new Address(toCheckIp, toCheckPort);
     }
 
+    /**
+     * Si l'application est relancée, on recharge les données
+     */
     @Override
     protected void onResume() {
         super.onResume();
@@ -122,6 +130,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     *  On charge les données sauvegardées pour préremplir les champs
+     */
     protected void fillOnStart() {
         if (this.storageController.hasSavedAddress()) {
             this.address = this.storageController.loadAddress();

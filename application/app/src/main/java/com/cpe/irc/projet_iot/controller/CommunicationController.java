@@ -10,10 +10,18 @@ import com.cpe.irc.projet_iot.sensor.Sensor;
 import org.json.JSONArray;
 import org.json.JSONException;
 
+/**
+ * Classe controller de communication.
+ * Gère la communication entre l'application et le serveur.
+ */
 public class CommunicationController {
     private Address address;
     private Communicator communicator;
 
+    /**
+     * Permer de (re)lancer le controller de communication avec une nouvelle adresse.
+     * @param address l'adresse du serveur.
+     */
     public void setCommunicator(Address address) {
         if (
                 this.address == null ||
@@ -26,6 +34,11 @@ public class CommunicationController {
         }
     }
 
+    /**
+     * Vérifie la validité de l'adresse.
+     * @param address l'adresse à vérifier.
+     * @return true si l'adresse est valide, false sinon.
+     */
     public boolean checkIpPort(Address address) {
         if(!address.hasIp() || !address.hasPort()){
             Log.e("IP", "IP or port is null");
@@ -42,6 +55,10 @@ public class CommunicationController {
         return true;
     }
 
+    /**
+     * Permet de récupérer les données des capteur auprès du serveur.
+     * @return Les données des capteurs.
+     */
     public Sensor[] loadSensorData() {
         this.communicator.send("getValues()");
 
@@ -72,6 +89,10 @@ public class CommunicationController {
         return sensors;
     }
 
+    /**
+     * Indique au serveur que l'on souhaite modifier l'ordre d'affichage des capteur.
+     * @param sensors la liste des capteurs avec le nouvel ordre.
+     */
     public void changeOrder(Sensor[] sensors){
         StringBuilder messageToSend = new StringBuilder("setOrder(");
         for (Sensor sensor : sensors) {
