@@ -1,4 +1,5 @@
-.idea
-venv
+.idea/*
+.vscode/*
+venv/*
 serveur/datas/__pycache___
-.vscode
+application/.idea/
