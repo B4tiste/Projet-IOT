@@ -1,4 +1,5 @@
 import json
+import time
 
 from serveur.datas.Register import Register
 
@@ -11,6 +12,7 @@ class Sensor:
         self.name = name
         self.value = value
         self.type = type_sensor
+        self.created_at = time.strftime("%d/%m/%Y %H:%M:%S")
 
     @staticmethod
     def create_sensor(name, value, type_sensor):
