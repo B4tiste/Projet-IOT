@@ -2,7 +2,7 @@
 
 Repository des fichiers sources du projet IOT 4IRC
 
-Branche: **dev_mathis**
+Branche: **main**
 
 ```mermaid
 graph TD
@@ -72,3 +72,4 @@ graph TD
     - UDP
   - 3 - Communication bidirectionnelle avec le smartphone
     - Écoute des messages envoyés du serveur
+

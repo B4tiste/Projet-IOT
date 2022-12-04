@@ -5,6 +5,8 @@
         "deque": "cpp",
         "vector": "cpp",
         "unordered_map": "cpp",
-        "string_view": "cpp"
+        "string_view": "cpp",
+        "*.ipp": "cpp",
+        "system_error": "cpp"
     }
 }
