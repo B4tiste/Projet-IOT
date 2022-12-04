@@ -49,8 +49,7 @@ public class CommunicationController {
 
         Sensor[] sensors = new Sensor[0];
         while (message != null){
-            Log.i("MESSAGE", message.toString());
-            if(message.toString().equals("ok")){
+            if(message.msg.equals("ok")){
                 message = this.communicator.receive();
             } else {
                 Log.i("MESSAGE", message.toString());

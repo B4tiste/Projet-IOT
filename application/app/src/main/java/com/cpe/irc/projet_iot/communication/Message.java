@@ -1,5 +1,7 @@
 package com.cpe.irc.projet_iot.communication;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 
 import com.cpe.irc.projet_iot.data.Crypter;
@@ -8,23 +10,45 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 
 public class Message {
-    String msg = "";
+    public String msg = "";
+    private boolean isEncoded = false;
 
-    // A message to a worker.
     public Message(String msg) {
+        this.isEncoded = false;
         if(msg != null) {
             this.msg = msg;
         }
     }
+    public Message(byte[] msg, int length) {
+        this.isEncoded = true;
+        if(msg != null) {
+            this.msg = new String(msg, 0, length);
+        }
+    }
+
+    public void encode() {
+        if(!this.isEncoded) {
+            this.msg = Crypter.encode(this.msg);
+            this.isEncoded = true;
+        }
+    }
+
+    public void decode() {
+        if(this.isEncoded) {
+            this.msg = Crypter.decode(this.msg);
+            this.isEncoded = false;
+        }
+    }
 
     public static Message fromPacket(@NonNull DatagramPacket packet) {
-        Message message = new Message(new String(packet.getData(), 0, packet.getLength()));
-        message.msg = Crypter.decode(message.msg);
+        Message message = new Message(packet.getData(), packet.getLength());
+        message.decode();
         return message;
     }
 
     public static DatagramPacket toPacket(Message message, InetAddress address, int port) {
-        byte[] msgInByte = Crypter.encode(message.msg).getBytes();
+        message.encode();
+        byte[] msgInByte = message.msg.getBytes();
         return new DatagramPacket(msgInByte, msgInByte.length, address, port);
     }
 
