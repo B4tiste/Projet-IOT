@@ -1,17 +1,19 @@
 # Program to control passerelle between Android application
 # and micro-controller through USB tty
 import json
+import os
 import re
 import socketserver
 import serial
 import threading
 
+from serveur.datas.Register import SENSORS_DIR
 from serveur.datas.Sensor import Sensor
 
 HOST = "192.168.1.24"
 UDP_PORT = 10000
 MICRO_COMMANDS = ["TL", "LT"]
-FILENAME = "../values.txt"
+FILENAME = os.path.join(SENSORS_DIR, "values.txt")
 LAST_VALUE = bytes("[" +
                    str(Sensor(0, "Thermometre", "18°c", "T")) + "," +
                    str(Sensor(1, "Capteur de luminosité", "500", "L")) +
